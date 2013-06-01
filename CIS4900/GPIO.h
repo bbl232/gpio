@@ -39,12 +39,12 @@ boolean setValue (int pinNum, boolean value); /*Exports the pin, sets the direct
 
 int setValues (boolean value, ...); /*Set multiple pins on or off, end the list with a negative number*/
 
-PIN * On(int number, enum direction dir, enum logicType active);
-boolean Off(PIN * p);
-boolean Read(PIN * p);
-boolean Write(PIN * p, boolean value);
+PIN On(int number);
+boolean Off(PIN p);
+boolean Read(PIN p);
+boolean Write(PIN p, boolean value);
 
-int getPinLocation (PIN * p); /*Gets the location of a previously exported pin*/
+int getPinLocation (PIN p); /*Gets the location of a previously exported pin*/
 
 void swapPins(int pin1, int pin2); /*Used to make the library remap pins (by swapping them)*/
 
