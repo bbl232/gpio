@@ -112,8 +112,9 @@ PIN On(int number){
 	if(_export(number)){
 		PIN newPin = malloc(sizeof(PIN));
 		newPin->location = number;
+		setValue(number,false);
+		return newPin;
 	}
-	setValue(number,false);
 	return NULL;
 }
 
