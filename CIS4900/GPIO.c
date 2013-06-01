@@ -21,7 +21,9 @@ struct pin {
 boolean _export(int pin);
 boolean _unexport(int pin);
 
-/*Static GPIO stuff, basic get/set THESE PINS ARE ASSUMED ACTIVE HIGH*/
+/*Static GPIO stuff, basic get/set THESE PINS ARE ASSUMED ACTIVE HIGH
+ *Functions: Read, Write, Multi-Read, Multi-Write
+ */
 boolean getValue (int pinNum){
 	if(_export(pinNum)){
 		int value = -1;
@@ -81,6 +83,7 @@ boolean setValue (int pinNum, boolean value){
 } 
 
 boolean * getValues (int firstPin, ...){
+	/*Not done yet*/
 	boolean * ret = malloc(sizeof(boolean));
 	return NULL;
 }
@@ -102,9 +105,11 @@ int setValues (boolean value, ...){
 	return numSet;
 } 
 
-/*Real GPIO ADT... pin management, etc*/
+/*Real GPIO ADT... pin management, etc
+ *Functions: On(Create), Off(Destroy), Read, Write
+ */
 
-PIN * exportPin(int number, enum direction dir, enum logicType active){
+PIN * On(int number, enum direction dir, enum logicType active){
 	if(_export(number)){
 		PIN * newPin = malloc(sizeof(PIN));
 		newPin->location = number;
@@ -112,31 +117,16 @@ PIN * exportPin(int number, enum direction dir, enum logicType active){
 	return NULL;
 }
 
-boolean unexportPin(PIN * p){
+boolean Off(PIN * p){
 return false;
 } 
 
-boolean getPinValue(PIN * p){
+boolean Read(PIN * p){
 return false;
 }
 
-boolean setPinValue(PIN * p, boolean value){
+boolean Write(PIN * p, boolean value){
 return false;
-} 
-
-boolean setPinDirection(PIN * p, enum direction dir){
-return false;
-}
-
-enum direction getPinDirection(PIN * p){
-return false;
-} 
-
-boolean setPinActive(PIN * p, enum logicType active){
-return false;
-} 
-enum logicType getPinActive(PIN * p){
-return ACTIVE_HIGH;
 } 
 
 int getPinLocation (PIN * p){
