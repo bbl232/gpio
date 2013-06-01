@@ -13,9 +13,6 @@ int softPinMap[17] = {2,4,6,10,12,14,18,20,22,25,23,21,17,15,11,9,7}; /*Keeps tr
 struct pin {
 	int location;
 	enum direction dir;
-	enum logicType active;
-	void (*on)(int location);
-	void (*off)(int location);
 };
 
 boolean _export(int pin);
@@ -60,7 +57,7 @@ boolean setValue (int pinNum, boolean value){
 		sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pinNum]);
 		FILE * dire = fopen(direfn,"w");
 		if(dire == NULL){
-			return undef;
+			return false;
 		}
 		fprintf(dire,"%s","out");
 		fclose(dire);
@@ -71,7 +68,7 @@ boolean setValue (int pinNum, boolean value){
 		FILE * val = fopen(fn,"w");
 		if(val == NULL){
 			free (fn);
-			return undef;
+			return false;
 		}
 		fprintf(val,"%d",value);
 		fclose(val);
@@ -81,6 +78,7 @@ boolean setValue (int pinNum, boolean value){
 	fprintf(stderr,"setValue ERROR: Unable to export pin: %d.\n",pinNum);
 	return undef;
 } 
+
 
 boolean * getValues (int firstPin, ...){
 	/*Not done yet*/
@@ -109,29 +107,46 @@ int setValues (boolean value, ...){
  *Functions: On(Create), Off(Destroy), Read, Write
  */
 
-PIN * On(int number, enum direction dir, enum logicType active){
+PIN * On(int number){
 	if(_export(number)){
 		PIN * newPin = malloc(sizeof(PIN));
 		newPin->location = number;
 	}
+	setValue(number,false);
 	return NULL;
 }
 
 boolean Off(PIN * p){
-return false;
+	if(p != NULL && _unexport(number)){
+		free(p);
+		return true;
+	}
+	return false;
 } 
 
 boolean Read(PIN * p){
-return false;
+	if(p != NULL){
+		return getValue(p->location);
+	}
+	return undef;
 }
 
 boolean Write(PIN * p, boolean value){
-return false;
+	if(p != NULL){
+		return setValue(p->location,value);
+	}
+	return false;
 } 
 
 int getPinLocation (PIN * p){
-return false;
+	if(p != NULL){
+		return p->location;
+	}
 } 
+
+/* End ADT Functions
+ *
+ */
 
 /*This function remaps the soft pin to the hard pin and does the actual sysfs interaction with the GPIO controller in order to export a pin*/
 boolean _export(int pin){

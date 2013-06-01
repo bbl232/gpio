@@ -32,24 +32,17 @@ enum logicType{
 	ACTIVE_LOW
 };
 
-typedef struct pin PIN;
+typedef struct pin * PIN;
 
 boolean getValue (int pinNum); /*Exports the pin, sets the direction to in, gets the value, unexports the pin and returns the value*/
 boolean setValue (int pinNum, boolean value); /*Exports the pin, sets the direction to out, and sets the value to 0 or 1; NOTE: This function leaves the pin exported*/
 
 int setValues (boolean value, ...); /*Set multiple pins on or off, end the list with a negative number*/
 
-PIN * exportPin(int number, enum direction dir, enum logicType active); /*Creates pin structure and exports the pin in sysfs*/
-boolean unexportPin(PIN * p); /*Unexports the pin using sysfs and destroys the struct*/
-
-boolean getPinValue(PIN * p); /*Gets the value for a previously exported pin*/
-boolean setPinValue(PIN * p, boolean value); /*Sets the value for a previously exported pin*/
-
-boolean setPinDirection(PIN * p, enum direction dir); /*Sets the direction of a previously eported pin*/
-enum direction getPinDirection(PIN * p); /*Gets the direction of a previously exported pin*/
-
-boolean setPinActive(PIN * p, enum logicType active); /*Sets the logic type of a previously exported pin*/
-enum logicType getPinActive(PIN * p); /*Gets the logic type of a previously exported pin*/
+PIN * On(int number, enum direction dir, enum logicType active);
+boolean Off(PIN * p);
+boolean Read(PIN * p);
+boolean Write(PIN * p, boolean value);
 
 int getPinLocation (PIN * p); /*Gets the location of a previously exported pin*/
 
