@@ -6,7 +6,7 @@ int main(){
 	PIN mypin = On(1);
 	if(NULL == mypin) printf("Couldn't Create Pin\n");
 	printf("Pin value ");
-	int read = Read(mypin));
+	int read = Read(mypin);
 	if(read > 0){
  		printf("TRUE\n");
  	}
