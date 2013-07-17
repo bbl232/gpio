@@ -104,11 +104,15 @@ int setValues (boolean value, ...){
 	return numSet;
 } 
 
+boolean cleanUp (int pinNum){
+	return _unexport(pinNum);
+}
+
 /*Real GPIO ADT... pin management, etc
- *Functions: On(Create), Off(Destroy), Read, Write
+ *Functions: PinOn(Create), PinOff(Destroy), Read, Write, SetLogic
  */
 
-PIN On(int number){
+PIN PinOn(int number){
 	if(_export(number)){
 		PIN newPin = malloc(sizeof(PIN));
 		newPin->location = number;
@@ -118,7 +122,7 @@ PIN On(int number){
 	return NULL;
 }
 
-boolean Off(PIN p){
+boolean PinOff(PIN p){
 	if(p != NULL && _unexport(p->location)){
 		free(p);
 		return true;
@@ -138,7 +142,11 @@ boolean Write(PIN p, boolean value){
 		return setValue(p->location,value);
 	}
 	return false;
-} 
+}
+
+boolean SetLogic(PIN p, enum logicType logic){
+	return false;
+}
 
 int getPinLocation (PIN p){
 	if(p != NULL){
@@ -180,6 +188,11 @@ boolean _export(int pin){
 boolean _unexport(int pin){
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
+		return false;
+	}
+
+	if(0==exported[pin]){
+		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not exported.\n",pin);
 		return false;
 	}
 

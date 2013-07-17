@@ -3,7 +3,7 @@
 
 int main(){
 	printPinMap();
-	PIN mypin = On(1);
+	PIN mypin = PinOn(1);
 	if(NULL == mypin) printf("Couldn't Create Pin\n");
 	printf("Pin value ");
 	int read = Read(mypin);
@@ -18,5 +18,5 @@ int main(){
  	}
 	printf("Set value false: %s\n", (Write(mypin,false) ? "TRUE" : "FALSE"));
 	printf("Set value true: %s\n", (Write(mypin,true) ? "TRUE" : "FALSE"));
-	printf("Pin off: %s\n", (Off(mypin) ? "TRUE" : "FALSE"));
+	printf("Pin off: %s\n", (PinOff(mypin) ? "TRUE" : "FALSE"));
 }
