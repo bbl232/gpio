@@ -201,7 +201,7 @@ boolean _unexport(int pin){
 }
 
 void swapPins(int pin1, int pin2){
-	if(pin1 < 0 || pin1 >= 17 || pin2 < 0 || pin2 >= 17 || pin1 == pin2){
+	if(pin1 < 0 || pin1 >= 17 || pin2 < 0 || pin2 >= 17 || pin1 == pin2 || exported[pin1] || exported[pin2]){
 		fprintf(stderr, "Error, could not swap pins\n");
 		return;
 	}
