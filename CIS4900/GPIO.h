@@ -46,6 +46,7 @@ boolean Write(PIN p, boolean value);
 
 int getPinLocation (PIN p); /*Gets the location of a previously exported pin*/
 
+/*NOTE: DO NOT USE THIS FUNCTION AFTER USING ANY PINS.*/
 void swapPins(int pin1, int pin2); /*Used to make the library remap pins (by swapping them)*/
 
 void printPinMap();
