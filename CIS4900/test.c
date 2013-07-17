@@ -3,6 +3,7 @@
 
 int main(){
 	printPinMap();
+	
 	PIN mypin = PinOn(1);
 	if(NULL == mypin) printf("Couldn't Create Pin\n");
 	printf("Pin value ");

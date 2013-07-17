@@ -12,14 +12,15 @@ int softPinMap[17] = {2,4,6,10,12,14,18,20,22,25,23,21,17,15,11,9,7}; /*Keeps tr
 
 struct pin {
 	int location;
-	enum direction dir;
+	enum direction dire;
+	enum logicType logic;
 };
 
 boolean _export(int pin);
 boolean _unexport(int pin);
 
-/*Static GPIO stuff, basic get/set THESE PINS ARE ASSUMED ACTIVE HIGH
- *Functions: Read, Write, Multi-Read, Multi-Write
+/*High Level GPIO stuff, basic get/set THESE PINS ARE ASSUMED ACTIVE HIGH
+ *Functions: Read, Write, Multi-Read, Map Printing, Mapping
  */
 boolean getValue (int pinNum){
 	if(_export(pinNum)){
@@ -79,14 +80,6 @@ boolean setValue (int pinNum, boolean value){
 	return undef;
 } 
 
-/*
-boolean * getValues (int firstPin, ...){
-	//Not done yet
-	boolean * ret = malloc(sizeof(boolean));
-	return NULL;
-}
-*/
-
 int setValues (boolean value, ...){
 	if(value != true && value != false){
 		return false;
@@ -108,14 +101,16 @@ boolean cleanUp (int pinNum){
 	return _unexport(pinNum);
 }
 
-/*Real GPIO ADT... pin management, etc
- *Functions: PinOn(Create), PinOff(Destroy), Read, Write, SetLogic
+/*Low Level GPIO ADT... pin management, etc
+ *Functions: PinOn(Create), PinOff(Destroy), Read, Write, SetLogic, SetDirection
  */
 
 PIN PinOn(int number){
 	if(_export(number)){
 		PIN newPin = malloc(sizeof(PIN));
 		newPin->location = number;
+		newPin->dire = IN;
+		newPin->logic = ACTIVE_HIGH;
 		setValue(number,false);
 		return newPin;
 	}
@@ -148,7 +143,11 @@ boolean SetLogic(PIN p, enum logicType logic){
 	return false;
 }
 
-int getPinLocation (PIN p){
+boolean SetDirection(PIN p, enum direction dire){
+	return false;
+}
+
+int PinLocation (PIN p){
 	if(p != NULL){
 		return p->location;
 	}
