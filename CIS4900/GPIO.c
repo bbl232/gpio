@@ -18,6 +18,8 @@ struct pin {
 
 boolean _export(int pin);
 boolean _unexport(int pin);
+boolean _direction(int pin, enum direction dire);
+boolean _logic(int pin, enum logicType logic);
 
 /*High Level GPIO stuff, basic get/set THESE PINS ARE ASSUMED ACTIVE HIGH
  *Functions: Read, Write, Multi-Read, Map Printing, Mapping
@@ -101,116 +103,6 @@ boolean cleanUp (int pinNum){
 	return _unexport(pinNum);
 }
 
-/*Low Level GPIO ADT... pin management, etc
- *Functions: PinOn(Create), PinOff(Destroy), Read, Write, SetLogic, SetDirection
- */
-
-PIN PinOn(int number){
-	if(_export(number)){
-		PIN newPin = malloc(sizeof(PIN));
-		newPin->location = number;
-		newPin->dire = IN;
-		newPin->logic = ACTIVE_HIGH;
-		return newPin;
-	}
-	return NULL;
-}
-
-boolean PinOff(PIN p){
-	if(p != NULL && _unexport(p->location)){
-		free(p);
-		return true;
-	}
-	return false;
-} 
-
-boolean Read(PIN p){
-	if(p != NULL){
-		return getValue(p->location);
-	}
-	return undef;
-}
-
-boolean Write(PIN p, boolean value){
-	if(p != NULL){
-		return setValue(p->location,value);
-	}
-	return false;
-}
-
-boolean SetLogic(PIN p, enum logicType logic){
-	return false;
-}
-
-boolean SetDirection(PIN p, enum direction dire){
-	return false;
-}
-
-int PinLocation (PIN p){
-	if(p != NULL){
-		return p->location;
-	}
-	return undef;
-} 
-
-/* End ADT Functions
- *
- */
-
-/*This function remaps the soft pin to the hard pin and does the actual sysfs interaction with the GPIO controller in order to export a pin*/
-boolean _export(int pin){
-
-	if(pin >= 17 || pin < 0){
-		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
-		return false;
-	}
-
-	FILE * ex = fopen(GPIOEX,"w");
-	if(ex==NULL){
-		return false;
-	}
-	fprintf(ex,"%d",hardPin[pin]);
-	fclose(ex);
-	char * check = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+4);
-	sprintf(check,"%s%s%d/",GPIODIR,"gpio",hardPin[pin]);
-	if(0==access(check,F_OK)){
-		free(check);
-		exported[pin]=true;
-		return true;
-	}
-	free(check);
-	return false;
-}
-
-/*This function remaps the soft pin to the hard pin and does the actual sysfs interaction with the GPIO controller in order to unexport a pin*/
-boolean _unexport(int pin){
-	if(pin >= 17 || pin < 0){
-		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
-		return false;
-	}
-
-	if(0==exported[pin]){
-		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not exported.\n",pin);
-		return false;
-	}
-
-	FILE * ex = fopen(GPIOUNEX,"w");
-	if(ex==NULL){
-		return false;
-	}
-	fprintf(ex,"%d",hardPin[pin]);
-	fclose(ex);
-	char * check = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+4);
-	sprintf(check,"%s%s%d/",GPIODIR,"gpio",hardPin[pin]);
-	if(0!=access(check,F_OK)){
-		free(check);
-		exported[pin]=false;
-		return true;
-	}
-	free(check);
-	return false;
-}
-
 void swapPins(int pin1, int pin2){
 	if(pin1 < 0 || pin1 >= 17 || pin2 < 0 || pin2 >= 17 || pin1 == pin2 || exported[pin1] || exported[pin2]){
 		fprintf(stderr, "Error, could not swap pins\n");
@@ -267,6 +159,156 @@ void printPinMap(){
 		}
 	}
 	printf("RIGHT(MIDDLE of board)\n");
+}
+
+/*Low Level GPIO ADT... pin management, etc
+ *Functions: PinOn(Create), PinOff(Destroy), Read, Write, SetLogic, SetDirection
+ */
+
+PIN PinOn(int number){
+	if(_export(number)){
+		PIN newPin = malloc(sizeof(PIN));
+		newPin->location = number;
+		newPin->dire = IN;
+		newPin->logic = ACTIVE_HIGH;
+		return newPin;
+	}
+	return NULL;
+}
+
+boolean PinOff(PIN p){
+	if(p != NULL && _unexport(p->location)){
+		free(p);
+		return true;
+	}
+	return false;
+} 
+
+boolean Read(PIN p){
+	if(p != NULL){
+		return getValue(p->location);
+	}
+	return undef;
+}
+
+boolean Write(PIN p, boolean value){
+	if(p != NULL){
+		return setValue(p->location,value);
+	}
+	return false;
+}
+
+boolean SetLogic(PIN p, enum logicType logic){
+	return false;
+}
+
+boolean SetDirection(PIN p, enum direction dire){
+	return false;
+}
+
+int PinLocation (PIN p){
+	if(p != NULL){
+		return p->location;
+	}
+	return undef;
+} 
+
+/* End ADT Functions
+ *
+ */
+
+
+
+/*This function remaps the soft pin to the hard pin and does the actual sysfs interaction with the GPIO controller in order to export a pin*/
+boolean _export(int pin){
+
+	if(pin >= 17 || pin < 0){
+		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
+		return false;
+	}
+
+	FILE * ex = fopen(GPIOEX,"w");
+	if(ex==NULL){
+		return false;
+	}
+	fprintf(ex,"%d",hardPin[pin]);
+	fclose(ex);
+	char * check = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+4);
+	sprintf(check,"%s%s%d/",GPIODIR,"gpio",hardPin[pin]);
+	if(0==access(check,F_OK)){
+		free(check);
+		exported[pin]=true;
+		return true;
+	}
+	free(check);
+	return false;
+}
+
+/*This function remaps the soft pin to the hard pin and does the actual sysfs interaction with the GPIO controller in order to unexport a pin*/
+boolean _unexport(int pin){
+	if(pin >= 17 || pin < 0){
+		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
+		return false;
+	}
+
+	if(0==exported[pin]){
+		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not exported.\n",pin);
+		return false;
+	}
+
+	FILE * ex = fopen(GPIOUNEX,"w");
+	if(ex==NULL){
+		return false;
+	}
+	fprintf(ex,"%d",hardPin[pin]);
+	fclose(ex);
+	char * check = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+4);
+	sprintf(check,"%s%s%d/",GPIODIR,"gpio",hardPin[pin]);
+	if(0!=access(check,F_OK)){
+		free(check);
+		exported[pin]=false;
+		return true;
+	}
+	free(check);
+	return false;
+}
+
+boolean _direction(int pin, enum direction dire){
+	if(pin >= 17 || pin < 0){
+		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
+		return false;
+	}
+
+	if(0==exported[pin]){
+		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not exported.\n",pin);
+		return false;
+	}
+
+	char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
+	sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pinNum]);
+	FILE * dire = fopen(direfn,"w");
+	if(dire == NULL){
+		return undef;
+	}
+	fprintf(dire,"%s","in");
+	fclose(dire);
+	free(direfn);
+
+	char * fn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+9);
+	sprintf(fn,"%s%s%d/value",GPIODIR,"gpio",hardPin[pinNum]);
+	FILE * val = fopen(fn,"r");
+	if(val == NULL){
+		return undef;
+	}
+	fscanf(val,"%d",&value);
+	fclose(val);
+	free(fn);
 	
+	fprintf(stderr,"getValue ERROR: Unable to export pin: %d.\n",pinNum);
+	return undef;
+}
+
+boolean _logic(int pin, enum logicType logic){
 
 }
+
