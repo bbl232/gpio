@@ -111,7 +111,6 @@ PIN PinOn(int number){
 		newPin->location = number;
 		newPin->dire = IN;
 		newPin->logic = ACTIVE_HIGH;
-		setValue(number,false);
 		return newPin;
 	}
 	return NULL;
