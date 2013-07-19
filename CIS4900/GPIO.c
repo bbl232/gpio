@@ -273,7 +273,7 @@ boolean _unexport(int pin){
 	return false;
 }
 
-boolean _direction(int pin, enum direction dire){
+boolean _direction(int pinNum, enum direction dire){
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
 		return false;
@@ -286,29 +286,49 @@ boolean _direction(int pin, enum direction dire){
 
 	char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
 	sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pinNum]);
-	FILE * dire = fopen(direfn,"w");
-	if(dire == NULL){
-		return undef;
+	FILE * direfh = fopen(direfn,"w");
+	if(direfh == NULL){
+		return false;
 	}
-	fprintf(dire,"%s","in");
-	fclose(dire);
+
+	if (dire == IN){
+		fprintf(direfh,"%s","in");
+	}
+	else{
+		fprintf(direfh,"%s","out");
+	}
+	fclose(direfh);
 	free(direfn);
 
-	char * fn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+9);
-	sprintf(fn,"%s%s%d/value",GPIODIR,"gpio",hardPin[pinNum]);
-	FILE * val = fopen(fn,"r");
-	if(val == NULL){
-		return undef;
-	}
-	fscanf(val,"%d",&value);
-	fclose(val);
-	free(fn);
-	
-	fprintf(stderr,"getValue ERROR: Unable to export pin: %d.\n",pinNum);
-	return undef;
+	return true;
 }
 
-boolean _logic(int pin, enum logicType logic){
+boolean _logic(int pinNum, enum logicType logic){
+	if(pin >= 17 || pin < 0){
+		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
+		return false;
+	}
+
+	if(0==exported[pin]){
+		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not exported.\n",pin);
+		return false;
+	}
+
+	char * lfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+14);
+	sprintf(lfn,"%s%s%d/active_low",GPIODIR,"gpio",hardPin[pinNum]);
+	FILE * lfh = fopen(direfn,"w");
+	if(lfh == NULL){
+		return false;
+	}
+
+	if (dire == IN){
+		fprintf(lfh,"%d", logic == ACTIVE_LOW);
+	}
+
+	fclose(lfh);
+	free(lfn);
+	
+	return true;
 
 }
 
