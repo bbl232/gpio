@@ -186,23 +186,43 @@ boolean PinOff(PIN p){
 
 boolean Read(PIN p){
 	if(p != NULL){
-		return getValue(p->location);
+		if(p->dire==IN){
+			return getValue(p->location);
+		}
+		else{
+			fprintf(stderr,"READ ERROR: Given PIN is not an input pin.\n");
+			return undef;
+		}
 	}
 	return undef;
 }
 
 boolean Write(PIN p, boolean value){
 	if(p != NULL){
-		return setValue(p->location,value);
+		if(p->dire==OUT){
+			return setValue(p->location,value);
+		}
+		else{
+			fprintf(stderr,"WRITE ERROR: Given PIN is not an output pin.\n");
+			return false;
+		}
 	}
 	return false;
 }
 
 boolean SetLogic(PIN p, enum logicType logic){
+	if(_logic(p->location, logic)){
+		p->logic=logic;
+		return true;
+	}
 	return false;
 }
 
 boolean SetDirection(PIN p, enum direction dire){
+	if(_direction(p->location, dire)){
+		p->dire=dire;
+		return true;
+	}
 	return false;
 }
 
@@ -225,6 +245,10 @@ boolean _export(int pin){
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
 		return false;
+	}
+
+	if(1==exported[pin]){
+		return true;
 	}
 
 	FILE * ex = fopen(GPIOEX,"w");
@@ -329,6 +353,5 @@ boolean _logic(int pinNum, enum logicType logic){
 	free(lfn);
 	
 	return true;
-
 }
 
