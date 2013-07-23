@@ -1,23 +1,21 @@
 #include "GPIO.h"
 #include <stdio.h>
-
+#include <stdlib.h>
 int main(){
 	printPinMap();
-	
-	PIN mypin = PinOn(1);
-	if(NULL == mypin) printf("Couldn't Create Pin\n");
-	printf("Pin value ");
-	int read = Read(mypin);
-	if(read > 0){
- 		printf("TRUE\n");
- 	}
- 	else if(read < 0){
- 		printf("FALSE\n");
- 	}
- 	else{
- 		printf("UNDEF\n");
- 	}
-	printf("Set value false: %s\n", (Write(mypin,false) ? "TRUE" : "FALSE"));
-	printf("Set value true: %s\n", (Write(mypin,true) ? "TRUE" : "FALSE"));
-	printf("Pin off: %s\n", (PinOff(mypin) ? "TRUE" : "FALSE"));
+	int relays[4] = {10,9,6,7};
+	int i = 0;
+
+	for(;i<4;i++){
+		setValue(relays[i],true);
+		sleep(1);
+	}
+	for(;i<4;i++){
+		setValue(relays[i],false);
+		sleep(1);
+	}
+	for(;i<4;i++){
+		setValue(relays[i],true);
+		sleep(1);
+	}
 }
