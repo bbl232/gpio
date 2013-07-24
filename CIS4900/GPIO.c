@@ -167,7 +167,7 @@ void printPinMap(){
 
 PIN PinOn(int number){
 	if(_export(number)){
-		PIN newPin = malloc(sizeof(PIN));
+		PIN newPin = malloc(sizeof(struct pin));
 		newPin->location = number;
 		newPin->dire = IN;
 		newPin->logic = ACTIVE_HIGH;
