@@ -173,6 +173,7 @@ PIN PinOn(int number){
 		newPin->logic = ACTIVE_HIGH;
 		return newPin;
 	}
+	fprintf(stderr,"EXPORT ERROR: Given PIN: %d could not be exported.\n",number);
 	return NULL;
 }
 
@@ -194,6 +195,7 @@ boolean Read(PIN p){
 			return undef;
 		}
 	}
+	fprintf(stderr,"ERROR: Can't read NULL pin.\n",pin);
 	return undef;
 }
 
@@ -207,6 +209,7 @@ boolean Write(PIN p, boolean value){
 			return false;
 		}
 	}
+	fprintf(stderr,"ERROR: Can't write to NULL pin.\n",pin);
 	return false;
 }
 
@@ -215,6 +218,7 @@ boolean SetLogic(PIN p, enum logicType logic){
 		p->logic=logic;
 		return true;
 	}
+	fprintf(stderr,"ERROR: Could not adjust logic type.\n",pin);
 	return false;
 }
 
@@ -223,6 +227,7 @@ boolean SetDirection(PIN p, enum direction dire){
 		p->dire=dire;
 		return true;
 	}
+	fprintf(stderr,"ERROR: Could not adjust direction.\n",pin);
 	return false;
 }
 
@@ -230,6 +235,7 @@ int PinLocation (PIN p){
 	if(p != NULL){
 		return p->location;
 	}
+	fprintf(stderr,"ERROR: NULL does not have a location.\n",pin);
 	return undef;
 } 
 
