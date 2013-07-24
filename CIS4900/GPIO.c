@@ -299,12 +299,12 @@ boolean _unexport(int pin){
 
 boolean _direction(int pin, enum direction dire){
 	if(pin >= 17 || pin < 0){
-		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
+		fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
 		return false;
 	}
 
 	if(0==exported[pin]){
-		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not exported.\n",pin);
+		fprintf(stderr,"ERROR: Given PIN: %d is not exported.\n",pin);
 		return false;
 	}
 
@@ -329,12 +329,12 @@ boolean _direction(int pin, enum direction dire){
 
 boolean _logic(int pin, enum logicType logic){
 	if(pin >= 17 || pin < 0){
-		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
+		fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
 		return false;
 	}
 
 	if(0==exported[pin]){
-		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not exported.\n",pin);
+		fprintf(stderr,"ERROR: Given PIN: %d is not exported.\n",pin);
 		return false;
 	}
 
