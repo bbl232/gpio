@@ -211,7 +211,7 @@ boolean Write(PIN p, boolean value){
 }
 
 boolean SetLogic(PIN p, enum logicType logic){
-	if(_logic(p->location, logic)){
+	if(p != NULL && _logic(p->location, logic)){
 		p->logic=logic;
 		return true;
 	}
@@ -219,7 +219,7 @@ boolean SetLogic(PIN p, enum logicType logic){
 }
 
 boolean SetDirection(PIN p, enum direction dire){
-	if(_direction(p->location, dire)){
+	if(p != NULL && _direction(p->location, dire)){
 		p->dire=dire;
 		return true;
 	}
