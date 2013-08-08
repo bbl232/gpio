@@ -1,3 +1,17 @@
+/*
+TODO:
+Change function names to something more logical incl gpio_ prefix
+set up pin idle open/close
+set up in out inout logic
+set up errorno and errorstr functions
+change read to work like stdio (scanf with bool pointer)
+
+*/
+
+
+
+
+
 #include "GPIO.h"
 #include <stdio.h>
 #include <string.h>
@@ -5,10 +19,22 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-boolean exported[17] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /*Keeps track of which pins are exported*/
-int hardPin[17] = {0,1,4,17,21,22,10,9,11,7,8,25,24,23,18,15,14}; /*Maps the soft pins to the hardware pins.*/
-int pinMap[26] = {-3,-5,0,-5,1,-1,2,16,-1,15,3,14,4,-1,5,13,-3,12,6,-1,7,11,8,10,-1,9}; /*Maps all the pins including voltage and ground pins*/
-int softPinMap[17] = {2,4,6,10,12,14,18,20,22,25,23,21,17,15,11,9,7}; /*Keeps track of soft pins position in the map above*/
+bool exported[17] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /*Keeps track of which pins are exported*/
+
+#if RPi_board_revision == 1
+    int hardPin[17] = {0,1,4,17,21,22,10,9,11,7,8,25,24,23,18,15,14}; /*REV1:Maps the soft pins to the hardware pins.*/
+#else
+    int hardPin[17] = {2,3,4,17,27,22,10,9,11,7,8,25,24,23,18,15,14}; /*REV2:Maps the soft pins to the hardware pins.*/
+#endif
+/*int pinMap[26] = {-3,-5,0,-5,1,-1,2,16,-1,15,3,14,4,-1,5,13,-3,12,6,-1,7,11,8,10,-1,9}; /*Maps all the pins including voltage and ground pins*/
+/*int softPinMap[17] = {2,4,6,10,12,14,18,20,22,25,23,21,17,15,11,9,7}; /*Keeps track of soft pins position in the map above*/
+
+/*Base directory for the GPIO controller fs
+DEFAULT: /sys/class/gpio/
+*/
+static const char const * GPIODIR = "/sys/class/gpio/";
+static const char const * GPIOEX = "/sys/class/gpio/export";
+static const char const * GPIOUNEX = "/sys/class/gpio/unexport";
 
 struct pin {
 	int location;
@@ -16,15 +42,15 @@ struct pin {
 	enum logicType logic;
 };
 
-boolean _export(int pin);
-boolean _unexport(int pin);
-boolean _direction(int pin, enum direction dire);
-boolean _logic(int pin, enum logicType logic);
+bool _export(int pin);
+bool _unexport(int pin);
+bool _direction(int pin, enum direction dire);
+bool _logic(int pin, enum logicType logic);
 
 /*High Level GPIO stuff, basic get/set THESE PINS ARE ASSUMED ACTIVE HIGH
  *Functions: Read, Write, Multi-Read, Map Printing, Mapping
  */
-boolean getValue (int pinNum){
+bool getValue (int pinNum){
 	if(_export(pinNum)){
 		int value = -1;
 		
@@ -54,7 +80,7 @@ boolean getValue (int pinNum){
 	return undef;
 }
 
-boolean setValue (int pinNum, boolean value){
+bool setValue (int pinNum, bool value){
 	if(_export(pinNum)){
 		char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
 		sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pinNum]);
@@ -82,7 +108,7 @@ boolean setValue (int pinNum, boolean value){
 	return undef;
 } 
 
-int setValues (boolean value, ...){
+int setValues (bool value, ...){
 	if(value != true && value != false){
 		return false;
 	}
@@ -99,66 +125,8 @@ int setValues (boolean value, ...){
 	return numSet;
 } 
 
-boolean cleanUp (int pinNum){
+bool cleanUp (int pinNum){
 	return _unexport(pinNum);
-}
-
-void swapPins(int pin1, int pin2){
-	if(pin1 < 0 || pin1 >= 17 || pin2 < 0 || pin2 >= 17 || pin1 == pin2 || exported[pin1] || exported[pin2]){
-		fprintf(stderr, "Error, could not swap pins\n");
-		return;
-	}
-	int tempHardPin = hardPin[pin1];
-	hardPin[pin1] = hardPin[pin2];
-	hardPin[pin2] = tempHardPin;
-
-	int tempPinMap = pinMap[softPinMap[pin1]];
-	pinMap[softPinMap[pin1]] = pinMap[softPinMap[pin2]];
-	pinMap[softPinMap[pin2]] = tempPinMap;
-}
-
-void printPinMap(){
-		printf("+---------------------+\n");
-	printf("| Legend              |\n");
-	printf("| 3v - 3.3 Volt Source|\n");
-	printf("| 5v - 5 Volt Source  |\n");
-	printf("| GD - Ground Pin     |\n");
-	printf("| 0-16 - GPIO Pins    |\n");
-	printf("+---------------------+\n");
-	printf("+---------------------+\n");
-	printf("| NOTE:               |\n");
-	printf("| Pin 16 is also TX   |\n");
-	printf("|    from UART        |\n");
-	printf("| Pin 15 is also RX   |\n");
-	printf("|    to UART          |\n");
-	printf("+---------------------+\n");
-	printf("This is not the actual hardware configuration of the pins.\n");
-	printf("More details about the GPIO controller can be found here:\n");
-	printf("http://elinux.org/RPi_Low-level_peripherals\n\n");
-	printf("LEFT(END of board)\n+--+--+\n");
-	int i = 0;
-	for(;i<26;i++){
-		if(i%2==0){
-			printf("|");
-		}
-		if(pinMap[i]>=0){
-			printf("%2d",pinMap[i]);
-		}
-		else if(pinMap[i]==-1){
-			printf("GD");
-		}
-		else if(pinMap[i]==-3){
-			printf("3v");
-		}
-		else if(pinMap[i]==-5){
-			printf("5v");
-		}
-		printf("|");
-		if(i%2!=0){
-			printf("\n+--+--+\n");
-		}
-	}
-	printf("RIGHT(MIDDLE of board)\n");
 }
 
 /*Low Level GPIO ADT... pin management, etc
@@ -177,7 +145,7 @@ PIN PinOn(int number){
 	return NULL;
 }
 
-boolean PinOff(PIN p){
+bool PinOff(PIN p){
 	if(p != NULL && _unexport(p->location)){
 		free(p);
 		return true;
@@ -185,7 +153,7 @@ boolean PinOff(PIN p){
 	return false;
 } 
 
-boolean Read(PIN p){
+bool Read(PIN p){
 	if(p != NULL){
 		if(p->dire==IN){
 			return getValue(p->location);
@@ -199,7 +167,7 @@ boolean Read(PIN p){
 	return undef;
 }
 
-boolean Write(PIN p, boolean value){
+bool Write(PIN p, bool value){
 	if(p != NULL){
 		if(p->dire==OUT){
 			return setValue(p->location,value);
@@ -213,7 +181,7 @@ boolean Write(PIN p, boolean value){
 	return false;
 }
 
-boolean SetLogic(PIN p, enum logicType logic){
+bool SetLogic(PIN p, enum logicType logic){
 	if(p != NULL && _logic(p->location, logic)){
 		p->logic=logic;
 		return true;
@@ -222,7 +190,7 @@ boolean SetLogic(PIN p, enum logicType logic){
 	return false;
 }
 
-boolean SetDirection(PIN p, enum direction dire){
+bool SetDirection(PIN p, enum direction dire){
 	if(p != NULL && _direction(p->location, dire)){
 		p->dire=dire;
 		return true;
@@ -246,7 +214,7 @@ int PinLocation (PIN p){
 
 
 /*This function remaps the soft pin to the hard pin and does the actual sysfs interaction with the GPIO controller in order to export a pin*/
-boolean _export(int pin){
+bool _export(int pin){
 
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
@@ -275,7 +243,7 @@ boolean _export(int pin){
 }
 
 /*This function remaps the soft pin to the hard pin and does the actual sysfs interaction with the GPIO controller in order to unexport a pin*/
-boolean _unexport(int pin){
+bool _unexport(int pin){
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
 		return false;
@@ -303,7 +271,7 @@ boolean _unexport(int pin){
 	return false;
 }
 
-boolean _direction(int pin, enum direction dire){
+bool _direction(int pin, enum direction dire){
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
 		return false;
@@ -333,7 +301,7 @@ boolean _direction(int pin, enum direction dire){
 	return true;
 }
 
-boolean _logic(int pin, enum logicType logic){
+bool _logic(int pin, enum logicType logic){
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
 		return false;
