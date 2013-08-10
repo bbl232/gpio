@@ -18,6 +18,7 @@ Requirements:
 
 #ifndef __GPIO_H
 #define __GPIO_H
+/*Uncomment the next line if you have a revision one board (the board that has no mounting holes on it)*/
 #define RPi_board_rev_1
 #include <stdbool.h>
 

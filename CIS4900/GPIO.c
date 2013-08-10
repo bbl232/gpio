@@ -2,15 +2,9 @@
 TODO:
 Change function names to something more logical incl gpio_ prefix
 set up pin idle open/close
-set up in out inout logic
 set up errorno and errorstr functions
-change read to work like stdio (scanf with bool pointer)
 
 */
-
-
-
-
 
 #include "GPIO.h"
 #include <stdio.h>
@@ -91,6 +85,7 @@ PIN * RPi_popen(int number, enum RPi_logicType logic, enum RPi_direction direc){
 		newPin->location = number;
 		newPin->dire = direc;
 		newPin->logic = logic;
+		newPin->idle=false;
 		if(0!=RPi__logic(number, logic)){
 			free(newPin);
 
@@ -217,6 +212,13 @@ int RPi_pdirection(PIN * p, enum RPi_direction dire){
 		return 0;
 	}
 	fprintf(stderr,"ERROR: Could not adjust direction.\n");
+	return 1;
+}
+
+int RPi_pidle(PIN * p){
+	if(p != NULL){
+		return RPi__unexport(p->location)==0){
+	}
 	return 1;
 }
 
