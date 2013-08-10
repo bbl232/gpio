@@ -37,60 +37,96 @@ enum RPi_logicType{
 
 typedef struct pin PIN;
 
+/* int RPi_init ()
 
+	This function will disable any active pins. It is meant to be run at the beginning (and possibly end) of each program that uses this library
+
+	Parameters: none
+	Returns: 0 on success
+*/
 int RPi_init ();
 
-/* PIN PinOn(int number)
 
-	This function will create a pin struct and export a pin, setting its direction to in and logic type to active high
+/* PIN * RPi_popen(int number, enum RPi_logicType logic, enum RPi_direction direc)
 
-	Parameters: int number - an integer in the range 0-16 representing a pin on the pinmap
+	This function will create a pin struct and export a pin, setting its direction and logic type
+
+	Parameters: int number - an integer in the range 0-16 representing a pin on the pinmap, enum RPi_logicType logic - logic type to apply to this pin, enum RPi_direction direc - intended direction of pin
 	Returns: PIN, the pin struct
 */
 PIN * RPi_popen(int number, enum RPi_logicType logic, enum RPi_direction direc);
 
-/* bool PinOff(PIN p)
 
-	This function destroys a pin struct and unexports the pin
+/* int RPi_pclose(PIN * p)
+
+	This function destroys a pin struct and disables the given pin
 
 	Parameters: PIN p - the pin to be destroyed
-	Returns: bool, the result of the attempted destory
+	Returns: 0 on success
 */
 int RPi_pclose(PIN * p);
 
-/* bool Read(PIN p)
+
+/* int RPi_pread(PIN * p, bool * in)
 
 	This function will read the value of a pin that has been created
 
-	Parameters: PIN p - the pin to be read
-	Returns: bool, the value on the pin
+	Parameters: PIN p - the pin to be read, bool * in - the location to store the read value
+	Returns: 0 on success
 */
 int RPi_pread(PIN * p, bool * in);
 
-/* bool Write(PIN p, bool value)
+
+/* int RPi_pwrite(PIN * p, bool value)
 
 	This function will write a value to a pin that has been created
 
 	Parameters: PIN p - the pin to be written to, bool value - the value to put on the pin
-	Returns: bool, the result of the write attempt
+	Returns: 0 on success
 */
 int RPi_pwrite(PIN * p, bool value);
 
 
-/* bool SetDirection(PIN p, enum direction)
+/* int RPi_pdirection(PIN * p, enum RPi_direction dire)
 
 	This function will change the direction of a pin that has already been created
 
-	Parameters: PIN p - the pin that is to be changed, enum direction - the new direction of the pin
-	Returns: bool, the result of setting the direction
+	Parameters: PIN p - the pin that is to be changed, enum RPi_direction - the new direction of the pin
+	Returns: 0 on success
 */
 int RPi_pdirection(PIN * p, enum RPi_direction dire);
 
+
+/* int RPi_pidle(PIN * p)
+
+	This function temporarily disables a pin, NOTE: this may not change the value that is on a pin.
+	The pin will be enabled should you try to read from it or write to it.
+
+	Parameters: PIN p - the pin that is to be made idle
+	Returns: 0 on success
+*/
 int RPi_pidle(PIN * p);
 
+
+/* int errorno()
+
+	This function can be used to get the error number of the last funciton call (if a function does not return 0, you can use this function to see what went wrong.)
+
+	Parameters: none.
+	Returns: the last error number
+*/
 int errorno();
 
+
+/* char * errorstr(int err)
+
+	This function will return an english redable explanation of an errorno code.
+
+	Parameters: int err - the error code as gotten from errorno()
+	Returns" char *, a string containing information about the error
+*/
 char * errorstr(int err);
+
 /*Pin Map Below
 LEFT(END of board)
 +--+--+
