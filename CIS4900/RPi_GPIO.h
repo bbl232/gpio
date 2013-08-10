@@ -7,13 +7,13 @@ Bill Gardner
 Description: this is a library for use with the Raspberry Pi's GPIO controller, intended for use with the University of Guelph's CIS 1500 Fall 13 students
 
 Requirements:
-	High and Low Level Functionality (Easy to use one-off functions, PIN ADT)
-	Pin Mapping and Remapping
+	High Level Functionality 
 	Easy to Use (include, library linking)
 	Easy to Work With (function calls need to be simple)
 	Clean (No crashes, Confirmed results)
 	Easy to Read Examples (Enumerated types help with this)
 	Compatibility with components on the board for use with the class
+	Compatibility with both revisions of the rpi
 */
 
 #ifndef __RPi_GPIO_H

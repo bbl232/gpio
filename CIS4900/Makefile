@@ -6,8 +6,18 @@ libRPi_GPIO.so: GPIO.o DEVICES.o
 test: GPIO.o RPi_GPIO.h test.o
 	gcc -o test GPIO.o test.o
 
+install: libRPi_GPIO.so RPi_GPIO.h
+	sudo mv libRPi_GPIO.so /usr/local/lib/.
+	sudo mv RPi_GPIO.h /usl/local/include/.
+
+uninstall:
+	sudo rm /usr/local/lib/libRPi_GPIO.so
+	sudo rm /usr/local/includes/RPi_GPIO.h
+
 clean:
 	rm *.o
+	rm test
+
 .SUFFIXES:
 .SUFFIXES: .o .c
 .c.o:
