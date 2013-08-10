@@ -3,7 +3,7 @@ default: libRPi_GPIO.so test
 libRPi_GPIO.so: GPIO.o DEVICES.o
 	ar rcs libRPi_GPIO.so GPIO.o DEVICES.o
 
-test: GPIO.o GPIO.h test.o
+test: GPIO.o RPi_GPIO.h test.o
 	gcc -o test GPIO.o test.o
 
 clean:
