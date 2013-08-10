@@ -26,8 +26,6 @@ bool exported[17] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /*Keeps track of which 
 #else
     int hardPin[17] = {2,3,4,17,27,22,10,9,11,7,8,25,24,23,18,15,14}; /*REV2:Maps the soft pins to the hardware pins.*/
 #endif
-/*int pinMap[26] = {-3,-5,0,-5,1,-1,2,16,-1,15,3,14,4,-1,5,13,-3,12,6,-1,7,11,8,10,-1,9}; /*Maps all the pins including voltage and ground pins*/
-/*int softPinMap[17] = {2,4,6,10,12,14,18,20,22,25,23,21,17,15,11,9,7}; /*Keeps track of soft pins position in the map above*/
 
 /*Base directory for the GPIO controller fs
 DEFAULT: /sys/class/gpio/
@@ -38,27 +36,203 @@ static const char const * GPIOUNEX = "/sys/class/gpio/unexport";
 
 struct pin {
 	int location;
-	enum direction dire;
-	enum logicType logic;
+	enum RPi_direction dire;
+	enum RPi_logicType logic;
+	enum RPi_direction currentDire;
 };
 
-bool _export(int pin);
-bool _unexport(int pin);
-bool _direction(int pin, enum direction dire);
-bool _logic(int pin, enum logicType logic);
+int RPi__export(int pin);
+int RPi__unexport(int pin);
+int RPi__direction(int pin, enum RPi_direction dire);
+int RPi__logic(int pin, enum RPi_logicType logic);
+int RPi__getValue (int pinNum, bool * value);
+int RPi__setValue (int pinNum, bool value);
 
 /*High Level GPIO stuff, basic get/set THESE PINS ARE ASSUMED ACTIVE HIGH
  *Functions: Read, Write, Multi-Read, Map Printing, Mapping
  */
-bool getValue (int pinNum){
-	if(_export(pinNum)){
-		int value = -1;
-		
+
+int RPi__setValues (bool value, ...){
+	if(value != true && value != false){
+		return false;
+	}
+	int numSet = 0;
+	va_list pins;
+	va_start(pins,value);
+	int pin;
+	while ((pin=va_arg(pins,int))>=0){
+		if(RPi__setValue(pin,value)){
+			numSet++;
+		}
+	}
+	va_end(pins);
+	return numSet;
+} 
+
+int RPi_init (){
+	int i = 0;
+	for(;i<17;i++){
+		RPi__unexport(i);
+	}
+	return 0;
+}
+
+/*Low Level GPIO ADT... pin management, etc
+ *Functions: PinOn(Create), PinOff(Destroy), Read, Write, SetLogic, SetDirection
+ */
+
+PIN * RPi_popen(int number, enum RPi_logicType logic, enum RPi_direction direc){
+	if(RPi__export(number)){
+		PIN * newPin = malloc(sizeof(struct pin));
+		if (newPin == NULL){
+			//"ERROR HANDLING HERE"
+			return NULL;
+		}
+		newPin->location = number;
+		newPin->dire = direc;
+		newPin->logic = logic;
+		if(0!=RPi__logic(number, logic)){
+			free(newPin);
+
+			return NULL;
+		}
+		if(direc==IN || direc==INOUT){
+			newPin->currentDire = IN;
+			if(0!=RPi_pdirection(newPin, IN)){
+				free(newPin);
+
+				return NULL;
+			}
+		}
+		else{
+			newPin->currentDire = OUT;
+			if(0!=RPi_pdirection(newPin, OUT)){
+				free(newPin);
+
+				return NULL;
+			}
+		}
+		return newPin;
+	}
+	fprintf(stderr,"EXPORT ERROR: Given PIN: %d could not be exported.\n",number);
+	return NULL;
+}
+
+int RPi_pclose(PIN * p){
+	if(p != NULL && RPi__unexport(p->location)){
+		free(p);
+		return 0;
+	}
+	return 1;
+} 
+
+int RPi_pread(PIN * p, bool * in){
+	if(p != NULL){
+		if(p->dire==IN){
+			if(0==RPi__getValue(p->location, in)){
+				return 0;
+			}
+			return 1;
+		}
+		else if(p->dire == INOUT){
+			if(p->currentDire == IN){
+				if(0!=RPi__getValue(p->location, in)){
+					return 1;
+				}
+				return 0;
+			}
+			else{
+				if(0!=RPi__direction(p->location, IN)){
+					return 1;
+				}
+				p->currentDire = IN;
+				if(0!=RPi__getValue(p->location, in)){
+					return 1;
+				}
+				return 0;
+			}
+		}
+		else{
+			fprintf(stderr,"READ ERROR: Given PIN is not an input pin.\n");
+			return 1;
+		}
+	}
+	fprintf(stderr,"ERROR: Can't read NULL pin.\n");
+	return 1;
+}
+
+int RPi_pwrite(PIN * p, bool value){
+		if(p != NULL){
+		if(p->dire==OUT){
+			if(0==RPi__setValue(p->location, value)){
+				return 0;
+			}
+			return 1;
+		}
+		else if(p->dire == INOUT){
+			if(p->currentDire == OUT){
+				if(0!=RPi__setValue(p->location, value)){
+					return 1;
+				}
+				return 0;
+			}
+			else{
+				if(0!=RPi__direction(p->location, OUT)){
+					return 1;
+				}
+				p->currentDire = OUT;
+				if(0!=RPi__setValue(p->location, value)){
+					return 1;
+				}
+				return 0;
+			}
+		}
+		else{
+			fprintf(stderr,"ERROR not an output pin.\n");
+			return 1;
+		}
+	}
+	fprintf(stderr,"ERROR: Can't read NULL pin.\n");
+	return 1;
+}
+
+int RPi_pdirection(PIN * p, enum RPi_direction dire){
+	if(p != NULL){
+		if(dire != p->dire){
+			if (dire == INOUT){
+				p->dire = INOUT;
+				return 0;
+			}
+			else{
+				if(0==RPi__direction(p->location,dire)){
+					p->dire = dire;
+					p->currentDire = dire;
+					return 0;
+				}
+				else{
+					return 1;
+				}
+			}
+		}
+		return 0;
+	}
+	fprintf(stderr,"ERROR: Could not adjust direction.\n");
+	return 1;
+}
+
+
+/* End ADT Functions
+ *
+ */
+
+
+int RPi__getValue (int pinNum, bool * value){
+	if(RPi__export(pinNum)){
 		char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
 		sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pinNum]);
 		FILE * dire = fopen(direfn,"w");
 		if(dire == NULL){
-			return undef;
+			return 1;
 		}
 		fprintf(dire,"%s","in");
 		fclose(dire);
@@ -68,25 +242,27 @@ bool getValue (int pinNum){
 		sprintf(fn,"%s%s%d/value",GPIODIR,"gpio",hardPin[pinNum]);
 		FILE * val = fopen(fn,"r");
 		if(val == NULL){
-			return undef;
+			return 1;
 		}
-		fscanf(val,"%d",&value);
+		int temp = 27;
+		fscanf(val,"%d",&temp);
+		*value = (temp!=27);
 		fclose(val);
 		free(fn);
-		_unexport(pinNum);
-		return value;
+		RPi__unexport(pinNum);
+		return 0;
 	}
 	fprintf(stderr,"getValue ERROR: Unable to export pin: %d.\n",pinNum);
-	return undef;
+	return 1;
 }
 
-bool setValue (int pinNum, bool value){
-	if(_export(pinNum)){
+int RPi__setValue (int pinNum, bool value){
+	if(RPi__export(pinNum)){
 		char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
 		sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pinNum]);
 		FILE * dire = fopen(direfn,"w");
 		if(dire == NULL){
-			return false;
+			return 1;
 		}
 		fprintf(dire,"%s","out");
 		fclose(dire);
@@ -97,137 +273,32 @@ bool setValue (int pinNum, bool value){
 		FILE * val = fopen(fn,"w");
 		if(val == NULL){
 			free (fn);
-			return false;
+			return 1;
 		}
 		fprintf(val,"%d",value);
 		fclose(val);
 		free(fn);
-		return true;
+		return 0;
 	}
 	fprintf(stderr,"setValue ERROR: Unable to export pin: %d.\n",pinNum);
-	return undef;
+	return 1;
 } 
-
-int setValues (bool value, ...){
-	if(value != true && value != false){
-		return false;
-	}
-	int numSet = 0;
-	va_list pins;
-	va_start(pins,value);
-	int pin;
-	while ((pin=va_arg(pins,int))>=0){
-		if(setValue(pin,value)){
-			numSet++;
-		}
-	}
-	va_end(pins);
-	return numSet;
-} 
-
-bool cleanUp (int pinNum){
-	return _unexport(pinNum);
-}
-
-/*Low Level GPIO ADT... pin management, etc
- *Functions: PinOn(Create), PinOff(Destroy), Read, Write, SetLogic, SetDirection
- */
-
-PIN PinOn(int number){
-	if(_export(number)){
-		PIN newPin = malloc(sizeof(struct pin));
-		newPin->location = number;
-		newPin->dire = IN;
-		newPin->logic = ACTIVE_HIGH;
-		return newPin;
-	}
-	fprintf(stderr,"EXPORT ERROR: Given PIN: %d could not be exported.\n",number);
-	return NULL;
-}
-
-bool PinOff(PIN p){
-	if(p != NULL && _unexport(p->location)){
-		free(p);
-		return true;
-	}
-	return false;
-} 
-
-bool Read(PIN p){
-	if(p != NULL){
-		if(p->dire==IN){
-			return getValue(p->location);
-		}
-		else{
-			fprintf(stderr,"READ ERROR: Given PIN is not an input pin.\n");
-			return undef;
-		}
-	}
-	fprintf(stderr,"ERROR: Can't read NULL pin.\n");
-	return undef;
-}
-
-bool Write(PIN p, bool value){
-	if(p != NULL){
-		if(p->dire==OUT){
-			return setValue(p->location,value);
-		}
-		else{
-			fprintf(stderr,"WRITE ERROR: Given PIN is not an output pin.\n");
-			return false;
-		}
-	}
-	fprintf(stderr,"ERROR: Can't write to NULL pin.\n");
-	return false;
-}
-
-bool SetLogic(PIN p, enum logicType logic){
-	if(p != NULL && _logic(p->location, logic)){
-		p->logic=logic;
-		return true;
-	}
-	fprintf(stderr,"ERROR: Could not adjust logic type.\n");
-	return false;
-}
-
-bool SetDirection(PIN p, enum direction dire){
-	if(p != NULL && _direction(p->location, dire)){
-		p->dire=dire;
-		return true;
-	}
-	fprintf(stderr,"ERROR: Could not adjust direction.\n");
-	return false;
-}
-
-int PinLocation (PIN p){
-	if(p != NULL){
-		return p->location;
-	}
-	fprintf(stderr,"ERROR: NULL does not have a location.\n");
-	return undef;
-} 
-
-/* End ADT Functions
- *
- */
-
-
 
 /*This function remaps the soft pin to the hard pin and does the actual sysfs interaction with the GPIO controller in order to export a pin*/
-bool _export(int pin){
+int RPi__export(int pin){
 
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
-		return false;
+		return 1;
 	}
 
 	if(1==exported[pin]){
-		return true;
+		return 0;
 	}
 
 	FILE * ex = fopen(GPIOEX,"w");
 	if(ex==NULL){
-		return false;
+		return 1;
 	}
 	fprintf(ex,"%d",hardPin[pin]);
 	fclose(ex);
@@ -236,27 +307,27 @@ bool _export(int pin){
 	if(0==access(check,F_OK)){
 		free(check);
 		exported[pin]=true;
-		return true;
+		return 0;
 	}
 	free(check);
-	return false;
+	return 1;
 }
 
 /*This function remaps the soft pin to the hard pin and does the actual sysfs interaction with the GPIO controller in order to unexport a pin*/
-bool _unexport(int pin){
+int RPi__unexport(int pin){
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
-		return false;
+		return 1;
 	}
 
 	if(0==exported[pin]){
 		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not exported.\n",pin);
-		return false;
+		return 1;
 	}
 
 	FILE * ex = fopen(GPIOUNEX,"w");
 	if(ex==NULL){
-		return false;
+		return 1;
 	}
 	fprintf(ex,"%d",hardPin[pin]);
 	fclose(ex);
@@ -265,28 +336,28 @@ bool _unexport(int pin){
 	if(0!=access(check,F_OK)){
 		free(check);
 		exported[pin]=false;
-		return true;
+		return 0;
 	}
 	free(check);
-	return false;
+	return 1;
 }
 
-bool _direction(int pin, enum direction dire){
+int RPi__direction(int pin, enum RPi_direction dire){
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
-		return false;
+		return 1;
 	}
 
 	if(0==exported[pin]){
 		fprintf(stderr,"ERROR: Given PIN: %d is not exported.\n",pin);
-		return false;
+		return 1;
 	}
 
 	char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
 	sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pin]);
 	FILE * direfh = fopen(direfn,"w");
 	if(direfh == NULL){
-		return false;
+		return 1;
 	}
 
 	if (dire == IN){
@@ -298,25 +369,25 @@ bool _direction(int pin, enum direction dire){
 	fclose(direfh);
 	free(direfn);
 
-	return true;
+	return 0;
 }
 
-bool _logic(int pin, enum logicType logic){
+int RPi__logic(int pin, enum RPi_logicType logic){
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
-		return false;
+		return 1;
 	}
 
 	if(0==exported[pin]){
 		fprintf(stderr,"ERROR: Given PIN: %d is not exported.\n",pin);
-		return false;
+		return 1;
 	}
 
 	char * lfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+14);
 	sprintf(lfn,"%s%s%d/active_low",GPIODIR,"gpio",hardPin[pin]);
 	FILE * lfh = fopen(lfn,"w");
 	if(lfh == NULL){
-		return false;
+		return 1;
 	}
 
 	fprintf(lfh,"%d", logic == ACTIVE_LOW);
@@ -324,6 +395,6 @@ bool _logic(int pin, enum logicType logic){
 	fclose(lfh);
 	free(lfn);
 	
-	return true;
+	return 0;
 }
 

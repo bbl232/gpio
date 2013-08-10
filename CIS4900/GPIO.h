@@ -23,17 +23,21 @@ Requirements:
 
 /*#define ADTLowLevelFunctions*/
 
-enum direction{
+enum RPi_direction{
 	IN,
-	OUT
+	OUT,
+	INOUT
 };
 
-enum logicType{
+enum RPi_logicType{
 	ACTIVE_HIGH,
 	ACTIVE_LOW
 };
 
 typedef struct pin PIN;
+
+
+int RPi_init ();
 
 /* PIN PinOn(int number)
 
@@ -42,8 +46,7 @@ typedef struct pin PIN;
 	Parameters: int number - an integer in the range 0-16 representing a pin on the pinmap
 	Returns: PIN, the pin struct
 */
-PIN* PinOn(int pinNum);
-
+PIN * RPi_popen(int number, enum RPi_logicType logic, enum RPi_direction direc);
 
 /* bool PinOff(PIN p)
 
@@ -52,8 +55,7 @@ PIN* PinOn(int pinNum);
 	Parameters: PIN p - the pin to be destroyed
 	Returns: bool, the result of the attempted destory
 */
-bool PinOff(PIN* p);
-
+int RPi_pclose(PIN * p);
 
 /* bool Read(PIN p)
 
@@ -62,8 +64,7 @@ bool PinOff(PIN* p);
 	Parameters: PIN p - the pin to be read
 	Returns: bool, the value on the pin
 */
-bool Read(PIN* p);
-
+int RPi_pread(PIN * p, bool * in);
 
 /* bool Write(PIN p, bool value)
 
@@ -72,17 +73,7 @@ bool Read(PIN* p);
 	Parameters: PIN p - the pin to be written to, bool value - the value to put on the pin
 	Returns: bool, the result of the write attempt
 */
-bool Write(PIN* p, bool value);
-
-
-/* bool SetLogic(PIN p, enum logicType);
-
-	This function will change the logic type of a pin that has been created
-
-	Parameters: PIN p - the pin that is to be changed, enum logicType - the new logic type of the pin
-	Returns: bool, the result of setting the logic type
-*/
-bool SetLogic(PIN* p, enum logicType);
+int RPi_pwrite(PIN * p, bool value);
 
 
 /* bool SetDirection(PIN p, enum direction)
@@ -92,17 +83,7 @@ bool SetLogic(PIN* p, enum logicType);
 	Parameters: PIN p - the pin that is to be changed, enum direction - the new direction of the pin
 	Returns: bool, the result of setting the direction
 */
-bool SetDirection(PIN* p, enum direction);
-
-
-/* int PinLocation(PIN p)
-
-	This function provides a way for you to get the location of a pin that you created
-
-	Parameters: PIN p - the pin to check
-	Returns: int, an integer in the range 0-16 representing a pin on the pinmap
-*/
-int PinLocation(PIN* p);
+int RPi_pdirection(PIN * p, enum RPi_direction dire);
 
 /*Pin Map Below
 LEFT(END of board)
