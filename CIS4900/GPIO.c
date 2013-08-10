@@ -246,7 +246,9 @@ int RPi__getValue (int pinNum, bool * value){
 		}
 		int temp = 27;
 		fscanf(val,"%d",&temp);
-		*value = (temp!=27);
+		if(temp!=27){
+			*value = (temp == true);
+		}
 		fclose(val);
 		free(fn);
 		RPi__unexport(pinNum);
