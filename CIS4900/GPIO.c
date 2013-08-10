@@ -6,7 +6,7 @@ set up errorno and errorstr functions
 
 */
 
-#include "GPIO.h"
+#include "RPi_GPIO.h"
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
