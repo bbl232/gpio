@@ -321,8 +321,7 @@ int RPi__unexport(int pin){
 	}
 
 	if(0==exported[pin]){
-		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not exported.\n",pin);
-		return 1;
+		return 0;
 	}
 
 	FILE * ex = fopen(GPIOUNEX,"w");
