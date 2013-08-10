@@ -5,7 +5,9 @@ int main(){
 	RPi_init();
 	PIN * myP= RPi_popen(0,ACTIVE_LOW,INOUT);
 	bool value;
-	RPi_pread(myP,&value);
+	if(0!=RPi_pread(myP,&value)){
+		printf("Read ERROR\n");
+	}
 	if(value){
 		printf ("Read: True");
 	}
