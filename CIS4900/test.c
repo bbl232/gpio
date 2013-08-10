@@ -3,17 +3,12 @@
 #include <stdlib.h>
 int main(){
 	RPi_init();
-	PIN * myP= RPi_popen(0,ACTIVE_LOW,INOUT);
-	bool value;
-	if(0!=RPi_pread(myP,&value)){
-		printf("Read ERROR\n");
+	PIN * myP = RPi_popen(0,ACTIVE_LOW,INOUT);
+	int i = 0;
+	int in = 1;
+	for (;i<5;i++){
+		scanf("%d",&in);
+		RPi_pwrite(myP,in == 1);
 	}
-	if(value){
-		printf ("Read: True");
-	}
-	else{
-		printf("Read False");
-	}
-	RPi_pwrite(myP,false);
-	RPi_pwrite(myP,true);
+	RPi_init();
 }

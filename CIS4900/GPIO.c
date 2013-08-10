@@ -21,7 +21,7 @@ change read to work like stdio (scanf with bool pointer)
 
 bool exported[17] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /*Keeps track of which pins are exported*/
 
-#if RPi_board_revision == 1
+#ifdef RPi_board_rev_1
     int hardPin[17] = {0,1,4,17,21,22,10,9,11,7,8,25,24,23,18,15,14}; /*REV1:Maps the soft pins to the hardware pins.*/
 #else
     int hardPin[17] = {2,3,4,17,27,22,10,9,11,7,8,25,24,23,18,15,14}; /*REV2:Maps the soft pins to the hardware pins.*/
@@ -236,12 +236,14 @@ int RPi__getValue (int pinNum, bool * value){
 		}
 		int temp = 27;
 		fscanf(val,"%d",&temp);
-		if(temp!=27){
-			*value = (temp == true);
+		if (0==temp){
+			*value = false;
+		}
+		else{
+			*value = true;
 		}
 		fclose(val);
 		free(fn);
-		RPi__unexport(pinNum);
 		return 0;
 	}
 	fprintf(stderr,"getValue ERROR: Unable to export pin: %d.\n",pinNum);
@@ -300,10 +302,6 @@ int RPi__unexport(int pin){
 	if(pin >= 17 || pin < 0){
 		fprintf(stderr,"EXPORT ERROR: Given PIN: %d is not mapped.\n",pin);
 		return 1;
-	}
-
-	if(0==exported[pin]){
-		return 0;
 	}
 
 	FILE * ex = fopen(GPIOUNEX,"w");

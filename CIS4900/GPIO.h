@@ -18,7 +18,7 @@ Requirements:
 
 #ifndef __GPIO_H
 #define __GPIO_H
-#define RPi_board_revision 2
+#define RPi_board_rev_1
 #include <stdbool.h>
 
 /*#define ADTLowLevelFunctions*/
