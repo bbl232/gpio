@@ -1,10 +1,8 @@
-default: libRPi_GPIO.so test 
+default: libRPi_GPIO.so 
 
 libRPi_GPIO.so: GPIO.o DEVICES.o
 	ar rcs libRPi_GPIO.so GPIO.o DEVICES.o
 
-test: GPIO.o RPi_GPIO.h test.o
-	gcc -o test GPIO.o test.o
 
 install: libRPi_GPIO.so RPi_GPIO.h
 	sudo cp libRPi_GPIO.so /usr/local/lib/.
