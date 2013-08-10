@@ -13,4 +13,5 @@ int main(){
 		printf("Read False");
 	}
 	RPi_pwrite(myP,false);
+	RPi_pwrite(myP,true);
 }

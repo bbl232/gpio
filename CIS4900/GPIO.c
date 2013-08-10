@@ -228,16 +228,6 @@ int RPi_pdirection(PIN * p, enum RPi_direction dire){
 
 int RPi__getValue (int pinNum, bool * value){
 	if(0==RPi__export(pinNum)){
-		char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
-		sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pinNum]);
-		FILE * dire = fopen(direfn,"w");
-		if(dire == NULL){
-			return 1;
-		}
-		fprintf(dire,"%s","in");
-		fclose(dire);
-		free(direfn);
-
 		char * fn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+9);
 		sprintf(fn,"%s%s%d/value",GPIODIR,"gpio",hardPin[pinNum]);
 		FILE * val = fopen(fn,"r");
@@ -260,16 +250,6 @@ int RPi__getValue (int pinNum, bool * value){
 
 int RPi__setValue (int pinNum, bool value){
 	if(0==RPi__export(pinNum)){
-		char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
-		sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pinNum]);
-		FILE * dire = fopen(direfn,"w");
-		if(dire == NULL){
-			return 1;
-		}
-		fprintf(dire,"%s","out");
-		fclose(dire);
-		free(direfn);
-
 		char * fn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+9);
 		sprintf(fn,"%s%s%d/value",GPIODIR,"gpio",hardPin[pinNum]);
 		FILE * val = fopen(fn,"w");
@@ -277,7 +257,7 @@ int RPi__setValue (int pinNum, bool value){
 			free (fn);
 			return 1;
 		}
-		fprintf(val,"%d",value);
+		fprintf(val,"%d",value==true);
 		fclose(val);
 		free(fn);
 		return 0;
