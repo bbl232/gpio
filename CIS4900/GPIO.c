@@ -342,7 +342,7 @@ int RPi__unexport(int pin){
 }
 
 int RPi__direction(int pin, enum RPi_direction dire){
-	if(0==RPi__export(pinNum)){
+	if(0==RPi__export(pin)){
 		if(pin >= 17 || pin < 0){
 			fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
 			return 1;
@@ -370,7 +370,7 @@ int RPi__direction(int pin, enum RPi_direction dire){
 }
 
 int RPi__logic(int pin, enum RPi_logicType logic){
-	if(0==RPi__export(pinNum)){
+	if(0==RPi__export(pin)){
 		if(pin >= 17 || pin < 0){
 			fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
 			return 1;
