@@ -1,4 +1,4 @@
-#include "GPIO.h"
+#include "RPi_GPIO.h"
 #include <stdio.h>
 #include <stdlib.h>
 int main(){
