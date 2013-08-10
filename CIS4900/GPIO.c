@@ -216,7 +216,7 @@ int RPi_pdirection(PIN * p, enum RPi_direction dire){
 
 int RPi_pidle(PIN * p){
 	if(p != NULL){
-		return RPi__unexport(p->location)==0);
+		return RPi__unexport(p->location);
 	}
 	return 1;
 }
