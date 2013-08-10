@@ -7,7 +7,6 @@ int main(){
 	int i = 0;
 	int in = 1;
 	for (;i<5;i++){
-		RPi_pidle(myP);
 		scanf("%d",&in);
 		RPi_pwrite(myP,in == 1);
 	}
