@@ -87,6 +87,10 @@ int RPi_pwrite(PIN * p, bool value);
 int RPi_pdirection(PIN * p, enum RPi_direction dire);
 
 int RPi_pidle(PIN * p);
+
+int errorno();
+
+char * errorstr(int err);
 /*Pin Map Below
 LEFT(END of board)
 +--+--+
