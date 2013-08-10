@@ -342,58 +342,54 @@ int RPi__unexport(int pin){
 }
 
 int RPi__direction(int pin, enum RPi_direction dire){
-	if(pin >= 17 || pin < 0){
-		fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
-		return 1;
-	}
+	if(0==RPi__export(pinNum)){
+		if(pin >= 17 || pin < 0){
+			fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
+			return 1;
+		}
 
-	if(0==exported[pin]){
-		fprintf(stderr,"ERROR: Given PIN: %d is not exported.\n",pin);
-		return 1;
-	}
+		char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
+		sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pin]);
+		FILE * direfh = fopen(direfn,"w");
+		if(direfh == NULL){
+			return 1;
+		}
 
-	char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
-	sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pin]);
-	FILE * direfh = fopen(direfn,"w");
-	if(direfh == NULL){
-		return 1;
-	}
+		if (dire == IN){
+			fprintf(direfh,"%s","in");
+		}
+		else{
+			fprintf(direfh,"%s","out");
+		}
+		fclose(direfh);
+		free(direfn);
 
-	if (dire == IN){
-		fprintf(direfh,"%s","in");
+		return 0;
 	}
-	else{
-		fprintf(direfh,"%s","out");
-	}
-	fclose(direfh);
-	free(direfn);
-
-	return 0;
+	return 1;
 }
 
 int RPi__logic(int pin, enum RPi_logicType logic){
-	if(pin >= 17 || pin < 0){
-		fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
-		return 1;
+	if(0==RPi__export(pinNum)){
+		if(pin >= 17 || pin < 0){
+			fprintf(stderr,"ERROR: Given PIN: %d is not mapped.\n",pin);
+			return 1;
+		}
+
+		char * lfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+14);
+		sprintf(lfn,"%s%s%d/active_low",GPIODIR,"gpio",hardPin[pin]);
+		FILE * lfh = fopen(lfn,"w");
+		if(lfh == NULL){
+			return 1;
+		}
+
+		fprintf(lfh,"%d", logic == ACTIVE_LOW);
+
+		fclose(lfh);
+		free(lfn);
+		
+		return 0;
 	}
-
-	if(0==exported[pin]){
-		fprintf(stderr,"ERROR: Given PIN: %d is not exported.\n",pin);
-		return 1;
-	}
-
-	char * lfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+14);
-	sprintf(lfn,"%s%s%d/active_low",GPIODIR,"gpio",hardPin[pin]);
-	FILE * lfh = fopen(lfn,"w");
-	if(lfh == NULL){
-		return 1;
-	}
-
-	fprintf(lfh,"%d", logic == ACTIVE_LOW);
-
-	fclose(lfh);
-	free(lfn);
-	
-	return 0;
+	return 1;
 }
 
