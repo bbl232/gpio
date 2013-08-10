@@ -82,7 +82,7 @@ int RPi_init (){
  */
 
 PIN * RPi_popen(int number, enum RPi_logicType logic, enum RPi_direction direc){
-	if(RPi__export(number)){
+	if(0==RPi__export(number)){
 		PIN * newPin = malloc(sizeof(struct pin));
 		if (newPin == NULL){
 			//"ERROR HANDLING HERE"
@@ -227,7 +227,7 @@ int RPi_pdirection(PIN * p, enum RPi_direction dire){
 
 
 int RPi__getValue (int pinNum, bool * value){
-	if(RPi__export(pinNum)){
+	if(0==RPi__export(pinNum)){
 		char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
 		sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pinNum]);
 		FILE * dire = fopen(direfn,"w");
@@ -257,7 +257,7 @@ int RPi__getValue (int pinNum, bool * value){
 }
 
 int RPi__setValue (int pinNum, bool value){
-	if(RPi__export(pinNum)){
+	if(0==RPi__export(pinNum)){
 		char * direfn = malloc(sizeof(char)*strlen(GPIODIR)+sizeof(char)*strlen("gpio")+13);
 		sprintf(direfn,"%s%s%d/direction",GPIODIR,"gpio",hardPin[pinNum]);
 		FILE * dire = fopen(direfn,"w");
