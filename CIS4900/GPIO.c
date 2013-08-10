@@ -98,7 +98,7 @@ PIN * RPi_popen(int number, enum RPi_logicType logic, enum RPi_direction direc){
 		}
 		if(direc==IN || direc==INOUT){
 			newPin->currentDire = IN;
-			if(0!=RPi_pdirection(newPin, IN)){
+			if(0!=RPi__direction(number, IN)){
 				free(newPin);
 
 				return NULL;
@@ -106,7 +106,7 @@ PIN * RPi_popen(int number, enum RPi_logicType logic, enum RPi_direction direc){
 		}
 		else{
 			newPin->currentDire = OUT;
-			if(0!=RPi_pdirection(newPin, OUT)){
+			if(0!=RPi__direction(number, OUT)){
 				free(newPin);
 
 				return NULL;
@@ -162,7 +162,7 @@ int RPi_pread(PIN * p, bool * in){
 }
 
 int RPi_pwrite(PIN * p, bool value){
-		if(p != NULL){
+	if(p != NULL){
 		if(p->dire==OUT){
 			if(0==RPi__setValue(p->location, value)){
 				return 0;
