@@ -21,7 +21,6 @@ Requirements:
 /*Uncomment the next line if you have a revision one board (the board that has no mounting holes on it)*/
 #define RPi_board_rev_1
 #include <stdbool.h>
-#include "RPi_GPIO_private.h"
 
 /*#define ADTLowLevelFunctions*/
 
