@@ -13,23 +13,6 @@ set up errorno and errorstr functions
 #include <stdlib.h>
 #include <stdarg.h>
 
-int LASTERR;
-
-bool exported[17] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /*Keeps track of which pins are exported*/
-
-#ifdef RPi_board_rev_1
-    int hardPin[17] = {0,1,4,17,21,22,10,9,11,7,8,25,24,23,18,15,14}; /*REV1:Maps the soft pins to the hardware pins.*/
-#else
-    int hardPin[17] = {2,3,4,17,27,22,10,9,11,7,8,25,24,23,18,15,14}; /*REV2:Maps the soft pins to the hardware pins.*/
-#endif
-
-/*Base directory for the GPIO controller fs
-DEFAULT: /sys/class/gpio/
-*/
-static const char const * GPIODIR = "/sys/class/gpio/";
-static const char const * GPIOEX = "/sys/class/gpio/export";
-static const char const * GPIOUNEX = "/sys/class/gpio/unexport";
-
 struct pin {
 	int location;
 	enum RPi_direction dire;
@@ -44,8 +27,7 @@ int RPi__logic(int pin, enum RPi_logicType logic);
 int RPi__getValue (int pinNum, bool * value);
 int RPi__setValue (int pinNum, bool value);
 
-/*High Level GPIO stuff, basic get/set THESE PINS ARE ASSUMED ACTIVE HIGH
- *Functions: Read, Write, Multi-Read, Map Printing, Mapping
+/*NON_ADT functions
  */
 
 int RPi__setValues (bool value, ...){
@@ -398,6 +380,8 @@ char * RPi_errorstr(int err){
 			return "Attempt to write to an input only pin.";
 		case 6:
 			return "Attempt to read from a write only pin.";
+		case 7:
+			return "Unable to create LED, memory not available.";
 		default:
 			return "Unknown Error.";
 		break;

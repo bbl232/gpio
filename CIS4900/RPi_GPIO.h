@@ -21,6 +21,7 @@ Requirements:
 /*Uncomment the next line if you have a revision one board (the board that has no mounting holes on it)*/
 #define RPi_board_rev_1
 #include <stdbool.h>
+#include "RPi_GPIO_private.h"
 
 /*#define ADTLowLevelFunctions*/
 
@@ -36,6 +37,9 @@ enum RPi_logicType{
 };
 
 typedef struct pin PIN;
+typedef struct LED LED;
+typedef struct Switch Switch;
+typedef struct Button Button;
 
 /* int RPi_init ()
 
@@ -126,6 +130,20 @@ int RPi_errorno();
 	Returns" char *, a string containing information about the error
 */
 char * RPi_errorstr(int err);
+
+
+
+LED * RPi_LED_open(int pin);
+int RPi_LED_ON(LED * l);
+int RPi_LED_OFF(LED * l);
+int RPi_LED_toggle(LED * l);
+int RPi_LED_close(LED * l);
+
+
+
+
+
+
 
 /*Pin Map Below
 LEFT(END of board)

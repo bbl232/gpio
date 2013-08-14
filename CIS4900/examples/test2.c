@@ -4,6 +4,8 @@ Purpose: Show how to use the pin ADT to control some LEDs.
 NOTE: This does not use the LED device abstraction.
 It is meant to show the difference between the abstraction and doing it manually.
 
+To compile this program use this command:
+gcc test2.c -o ledtest1 -lRPi_GPIO
 */
 
 /*First, we need access to the library*/
