@@ -13,6 +13,24 @@ set up errorno and errorstr functions
 #include <stdlib.h>
 #include <stdarg.h>
 
+/*Where the last error code is stored*/
+int LASTERR;
+
+/*Base directory for the GPIO controller fs
+DEFAULT: /sys/class/gpio/
+*/
+static const char const * GPIODIR = "/sys/class/gpio/";
+static const char const * GPIOEX = "/sys/class/gpio/export";
+static const char const * GPIOUNEX = "/sys/class/gpio/unexport";
+
+bool exported[17] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /*Keeps track of which pins are exported*/
+
+#ifdef RPi_board_rev_1
+    int hardPin[17] = {0,1,4,17,21,22,10,9,11,7,8,25,24,23,18,15,14}; /*REV1:Maps the soft pins to the hardware pins.*/
+#else
+    int hardPin[17] = {2,3,4,17,27,22,10,9,11,7,8,25,24,23,18,15,14}; /*REV2:Maps the soft pins to the hardware pins.*/
+#endif
+
 struct pin {
 	int location;
 	enum RPi_direction dire;
@@ -361,6 +379,105 @@ int RPi__logic(int pin, enum RPi_logicType logic){
 	}
 	return 1;
 }
+
+
+/*
+	To be compiled with the RPi_GPIO library.
+	
+	Device abstractions in this file are as follows
+	-LED	(ON/OFF)
+	-Switch (Modal)
+	-Button (Wait for press)
+*/
+
+#include "RPi_GPIO.h"
+#include <stdlib.h>
+struct LED{
+	PIN * p;
+	bool on; // This led is on, true/false
+};
+
+struct Switch{
+	PIN * p;
+	bool lastMode; // Last position of the switch
+};
+
+struct Button{
+	PIN * p;
+};
+
+LED * RPi_LED_open(int pin){
+	LED * newLED = malloc(sizeof(struct LED));
+	if (newLED == NULL){
+		LASTERR=7;
+		return NULL;
+	}
+	newLED->p = RPi_popen(pin,ACTIVE_HIGH,OUT);
+	if(newLED->p == NULL){
+		free(newLED);
+		return NULL;
+	}
+	newLED->on = false;
+	if(0!=RPi_pwrite(newLED->p,false)){
+		free(newLED->p);
+		free(newLED);
+		return NULL;
+	}
+	return newLED;
+}
+
+int RPi_LED_ON(LED * l){
+	if(l==NULL || l->p==NULL){
+		LASTERR=4;
+		return 1;
+	}
+	return RPi_pwrite(l->p,true);
+}
+
+int RPi_LED_OFF(LED * l){
+	if(l==NULL || l->p==NULL){
+		LASTERR=4;
+		return 1;
+	}
+	return RPi_pwrite(l->p,false);
+}
+
+int RPi_LED_toggle(LED * l){
+	if(l==NULL || l->p==NULL){
+		LASTERR=4;
+		return 1;
+	}
+	if(l->on){
+		return RPi_pwrite(l->p,false);
+	}
+	return RPi_pwrite(l->p,true);
+}
+
+int RPi_LED_close(LED * l){
+	if(l==NULL || l->p==NULL){
+		LASTERR=4;
+		return 1;
+	}
+	free(l->p);
+	free(l);
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 int RPi_errorno(){
 	return LASTERR;
