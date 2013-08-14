@@ -474,6 +474,9 @@ int RPi_LED_close(LED * l){
 		LASTERR=4;
 		return 1;
 	}
+	if(0!=RPi_pclose(l->p)){
+		return 1;
+	}
 	free(l->p);
 	free(l);
 	return 0;
