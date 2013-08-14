@@ -112,7 +112,7 @@ PIN * RPi_popen(int number, enum RPi_logicType logic, enum RPi_direction direc){
 }
 
 int RPi_pclose(PIN * p){
-	if(p != NULL && RPi__unexport(p->location)){
+	if(p != NULL && 0==RPi__unexport(p->location)){
 		free(p);
 		return 0;
 	}
@@ -380,11 +380,11 @@ int RPi__logic(int pin, enum RPi_logicType logic){
 	return 1;
 }
 
-int errorno(){
+int RPi_errorno(){
 	return LASTERR;
 }
 
-char * errorstr(int err){
+char * RPi_errorstr(int err){
 	switch(err){
 		case 1:
 			return "Unable to create PIN, memory not available.";

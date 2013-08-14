@@ -115,7 +115,7 @@ int RPi_pidle(PIN * p);
 	Parameters: none.
 	Returns: the last error number
 */
-int errorno();
+int RPi_errorno();
 
 
 /* char * errorstr(int err)
@@ -125,7 +125,7 @@ int errorno();
 	Parameters: int err - the error code as gotten from errorno()
 	Returns" char *, a string containing information about the error
 */
-char * errorstr(int err);
+char * RPi_errorstr(int err);
 
 /*Pin Map Below
 LEFT(END of board)
