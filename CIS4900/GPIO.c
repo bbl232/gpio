@@ -431,7 +431,11 @@ int RPi_LED_ON(LED * l){
 		LASTERR=4;
 		return 1;
 	}
-	return RPi_pwrite(l->p,true);
+	if(0==RPi_pwrite(l->p,true)){
+		l->on=true;
+		return 0;
+	}
+	return 1;
 }
 
 int RPi_LED_OFF(LED * l){
@@ -439,7 +443,11 @@ int RPi_LED_OFF(LED * l){
 		LASTERR=4;
 		return 1;
 	}
-	return RPi_pwrite(l->p,false);
+	if(0==RPi_pwrite(l->p,false)){
+		l->on=false;
+		return 0;
+	}
+	return 1;
 }
 
 int RPi_LED_toggle(LED * l){
@@ -448,9 +456,17 @@ int RPi_LED_toggle(LED * l){
 		return 1;
 	}
 	if(l->on){
-		return RPi_pwrite(l->p,false);
+		if(0==RPi_pwrite(l->p,false)){
+			l->on=false;
+			return 0;
+		}
+		return 1;
 	}
-	return RPi_pwrite(l->p,true);
+	if(0==RPi_pwrite(l->p,true)){
+		l->on=true;
+		return 0;
+	}
+	return 1;
 }
 
 int RPi_LED_close(LED * l){
