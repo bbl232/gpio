@@ -30,10 +30,10 @@ int main (){
 			printf("Position: %d\n",position);
 		}
 		else{
+			printf("error: %s\n",RPi_errorstr(RPi_errorno()));
 			break;
 		}
 	}
-	printf("error: %s\n",RPi_errorstr(RPi_errorno()));
 
 	if(0!=RPi_TWS_close(sw)){
 		printf("error: %s\n",RPi_errorstr(RPi_errorno()));
