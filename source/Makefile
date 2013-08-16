@@ -1,7 +1,7 @@
 default: libRPi_GPIO.so 
 
-libRPi_GPIO.so: GPIO.o DEVICES.o
-	ar rcs libRPi_GPIO.so GPIO.o DEVICES.o
+libRPi_GPIO.so: GPIO.o
+	ar rcs libRPi_GPIO.so GPIO.o
 
 
 install: libRPi_GPIO.so RPi_GPIO.h
