@@ -26,14 +26,14 @@ int main(){
 	bool isitbright = true;
 
 	/*We need a photoresistor, lets make one and check that it got made*/
-	PHR * sense = RPi_PHR_open(pin);
+	PHR * sense = RPi_PHR_open(phrpin);
 	if (sense==NULL){
 		printf("Error: %s\n",RPi_errorstr(RPi_errorno()));
 		return 1;
 	}
 
 	/*We also need an LED*/
-	LED * light = RPi_LED_open(pin);
+	LED * light = RPi_LED_open(ledpin);
 	if (light==NULL){
 		printf("Error: %s\n",RPi_errorstr(RPi_errorno()));
 		return 1;

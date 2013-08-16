@@ -49,6 +49,12 @@ typedef struct PHR PHR;
 */
 int RPi_init ();
 
+/*  +----------------------------------------------------------------+
+	|																 |
+	|  START ADT Functions 									 		 |
+	|																 |
+	+----------------------------------------------------------------+
+*/
 
 /* PIN * RPi_popen(int number, enum RPi_logicType logic, enum RPi_direction direc)
 
