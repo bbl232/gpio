@@ -25,7 +25,7 @@ int main (){
 	}
 
 	int position=-1;
-	while(1){
+	while(position!=2){
 		if(0==RPi_TWS_readPosition(sw, &position)){
 			printf("Position: %d\n",position);
 		}
@@ -38,6 +38,6 @@ int main (){
 	if(0!=RPi_TWS_close(sw)){
 		printf("error: %s\n",RPi_errorstr(RPi_errorno()));
 	}
-	
+
 	return 0;
 }
