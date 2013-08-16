@@ -21,7 +21,7 @@ int main(){
 	int pin = 10;
 
 	/*Lets open a PIN*/	
-	PIN * myP = RPi_popen(0,ACTIVE_HIGH,OUT);
+	PIN * myP = RPi_popen(pin,ACTIVE_HIGH,OUT);
 	/*We need to check that the pin was actually opened before we use it*/
 	if(myP == NULL){
 		/*If it wasn't opened, let's find out why*/
