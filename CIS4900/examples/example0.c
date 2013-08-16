@@ -1,9 +1,9 @@
 /* This is a test file for the RPi_GPIO library written by Bill Vandenberk
 Date: August 15, 2013
-Purpose: Show how to use the pin ADT.
+Purpose: Show how to use the LED abstraction.
 
 To compile this program use this command:
-gcc example1.c -o example1 -lRPi_GPIO
+gcc example0.c -o example0 -lRPi_GPIO
 */
 /*First off, we need access to the library*/
 #include "RPi_GPIO.h"
@@ -20,32 +20,32 @@ int main(){
 	/*Storing the pin number in a variable allows us to change it easily*/
 	int pin = 10;
 
-	/*Lets open a PIN*/	
-	PIN * myP = RPi_popen(pin,ACTIVE_HIGH,OUT);
-	/*We need to check that the pin was actually opened before we use it*/
-	if(myP == NULL){
+	/*Lets open an LED*/	
+	LED * myL = RPi_LED_open(pin);
+	/*We need to check that the LED was actually opened before we use it*/
+	if(myL == NULL){
 		/*If it wasn't opened, let's find out why*/
 		printf("ERROR! %s\n", RPi_errorstr(RPi_errorno()));
 	}
 
-	/*Lets put a value of true on that pin (3.3v)*/
-	if(0!=RPi_pwrite(myP,true)){
+	/*Lets light up this LED*/
+	if(0!=RPi_LED_on(myL)){
 		/*If that didn't work, let's find out why*/
 		printf("ERROR! %s\n", RPi_errorstr(RPi_errorno()));		
 	}
 
-	/*Sleep for one second to let our pin stay at true*/
+	/*Sleep for one second to let our LED stay on*/
 	sleep(1);
 
-	/*We put our pin back to false (0v)*/
-	if(0!=RPi_pwrite(myP,false)){
+	/*We turn the LED back off*/
+	if(0!=RPi_LED_off(myL)){
 		/*If that didn't work, let's find out why*/
 		printf("ERROR! %s\n", RPi_errorstr(RPi_errorno()));		
 	}
 
-	/*We are done with our pin now, lets close it.*/
-	if(0!=RPi_pclose(myP)){
-		/*If we couldnt close the pin, let's find out why*/
+	/*We are done with our LED now, lets close it.*/
+	if(0!=RPi_LED_close(myL)){
+		/*If we couldnt close the LED, let's find out why*/
 		printf("ERROR! %s\n", RPi_errorstr(RPi_errorno()));		
 	}
 }
