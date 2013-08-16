@@ -1,5 +1,5 @@
 /* This is a test file for the RPi_GPIO library written by Bill Vandenberk
-Date: August 13, 2013
+Date: August 15, 2013
 Purpose: Show how to use the LED abstraction to control some LEDs.
 
 To compile this program use this command:
