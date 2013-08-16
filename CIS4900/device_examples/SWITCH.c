@@ -19,14 +19,21 @@ int main (){
 	int pin1 = 5;
 	int pin2 = 13;
 
+	/*We need a name for this 3-way-switch*/
 	TWS * sw = RPi_TWS_open(pin1,pin2);
+	/*If it was not created, we really should exit*/
 	if(sw==NULL){
 		printf("error: %s\n",RPi_errorstr(RPi_errorno()));
+		return 1;
 	}
 
+	/*This is the variable that we're going to read the switch position into. Switch it to 2 to stop the loop*/
 	int position=-1;
+	/*This will repeat until the switch hits position 2*/
 	while(position!=2){
+		/*If this function does not return 0, we know something has gone wrong*/
 		if(0==RPi_TWS_readPosition(sw, &position)){
+			/*Print the poition to the screen*/
 			printf("Position: %d\n",position);
 		}
 		else{
