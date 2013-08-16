@@ -57,7 +57,7 @@ int main (){
 	getchar();
 
 
-    if(0!=RPi_LED_OFF(led2)){
+    if(0!=RPi_LED_off(led2)){
         printf("Error: %s\n",RPi_errorstr(RPi_errorno()));
     }
 

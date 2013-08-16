@@ -37,8 +37,8 @@ enum RPi_logicType{
 
 typedef struct pin PIN;
 typedef struct LED LED;
-typedef struct Switch Switch;
-typedef struct Button Button;
+typedef struct TWS TWS;
+typedef struct PHR PHR;
 
 /* int RPi_init ()
 
@@ -111,7 +111,99 @@ int RPi_pdirection(PIN * p, enum RPi_direction dire);
 int RPi_pidle(PIN * p);
 
 
-/* int errorno()
+/*  +----------------------------------------------------------------+
+	|																 |
+	|  END ADT Functions - Begin Device Abstracion functions 		 |
+	|																 |
+	+----------------------------------------------------------------+
+*/
+
+
+/* LED * RPi_LED_open(int pin);
+
+	This function opens a connection to an LED
+
+	Parameters: int pin - the pin that the led is connected to
+	Returns: LED *, the created LED
+*/
+LED * RPi_LED_open(int pin);
+
+
+/* int RPi_LED_ON(LED * l);
+
+	This function will turn an LED on
+
+	Parameters: LED * l - the LED to turn on
+	Returns: 0 on success
+*/
+int RPi_LED_on(LED * l);
+
+
+/* int RPi_LED_OFF(LED * l);
+
+	This function turns an LED off
+
+	Parameters: LED * l - the LED to turn off
+	Returns: 0 on success
+*/
+int RPi_LED_off(LED * l);
+
+
+/* int RPi_LED_toggle(LED * l);
+
+	This function will toggle the current state of an LED
+
+	Parameters: LED * l - the LED to toggle
+	Returns: 0 on success
+*/
+int RPi_LED_toggle(LED * l);
+
+
+/* int RPi_LED_close(LED * l);
+
+	This function closes the connection to an LED
+
+	Parameters: LED * l - the LED to close
+	Returns: 0 on success
+*/
+int RPi_LED_close(LED * l);
+
+
+
+TWS * RPi_TWS_open(int pin1, int pin2){
+
+}
+
+int RPi_TWS_readPosition(TWS * s, int * readto){
+
+}
+
+int RPi_TWS_close(TWS * s){
+
+}
+
+PHR * RPi_PHR_open(int pin){
+
+}
+
+int RPi_PHR_read(PHR * r, int * readto){
+
+}
+
+int RPi_PHR_close(PHR * r){
+	
+}
+
+
+/*  +----------------------------------------------------------------+
+	|																 |
+	|  END Device Abstraction Functions - Begin error msg functions  |
+	|																 |
+	+----------------------------------------------------------------+
+*/
+
+
+/* int RPi_errorno()
 
 	This function can be used to get the error number of the last funciton call (if a function does not return 0, you can use this function to see what went wrong.)
 
@@ -121,7 +213,7 @@ int RPi_pidle(PIN * p);
 int RPi_errorno();
 
 
-/* char * errorstr(int err)
+/* char * RPi_errorstr(int err)
 
 	This function will return an english redable explanation of an errorno code.
 
@@ -129,19 +221,6 @@ int RPi_errorno();
 	Returns" char *, a string containing information about the error
 */
 char * RPi_errorstr(int err);
-
-
-
-LED * RPi_LED_open(int pin);
-int RPi_LED_ON(LED * l);
-int RPi_LED_OFF(LED * l);
-int RPi_LED_toggle(LED * l);
-int RPi_LED_close(LED * l);
-
-
-
-
-
 
 
 /*Pin Map Below

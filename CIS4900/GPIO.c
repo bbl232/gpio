@@ -381,28 +381,24 @@ int RPi__logic(int pin, enum RPi_logicType logic){
 }
 
 
-/*
-	To be compiled with the RPi_GPIO library.
-	
+/*	
 	Device abstractions in this file are as follows
-	-LED	(ON/OFF)
-	-Switch (Modal)
-	-Button (Wait for press)
+	-LED		  	(on/off/toggle)
+	-3-way Switch 	(getPosition) (on-off-on)
+	-Photoresistor	(read)
 */
 
-#include "RPi_GPIO.h"
-#include <stdlib.h>
 struct LED{
 	PIN * p;
 	bool on; // This led is on, true/false
 };
 
-struct Switch{
+struct TWS{
 	PIN * p;
 	bool lastMode; // Last position of the switch
 };
 
-struct Button{
+struct PHR{
 	PIN * p;
 };
 
@@ -426,7 +422,7 @@ LED * RPi_LED_open(int pin){
 	return newLED;
 }
 
-int RPi_LED_ON(LED * l){
+int RPi_LED_on(LED * l){
 	if(l==NULL || l->p==NULL){
 		LASTERR=4;
 		return 1;
@@ -438,7 +434,7 @@ int RPi_LED_ON(LED * l){
 	return 1;
 }
 
-int RPi_LED_OFF(LED * l){
+int RPi_LED_off(LED * l){
 	if(l==NULL || l->p==NULL){
 		LASTERR=4;
 		return 1;
@@ -484,14 +480,29 @@ int RPi_LED_close(LED * l){
 
 
 
+TWS * RPi_TWS_open(int pin1, int pin2){
 
+}
 
+int RPi_TWS_readPosition(TWS * s, int * readto){
 
+}
 
+int RPi_TWS_close(TWS * s){
 
+}
 
+PHR * RPi_PHR_open(int pin){
 
+}
 
+int RPi_PHR_read(PHR * r, int * readto){
+
+}
+
+int RPi_PHR_close(PHR * r){
+	
+}
 
 
 
