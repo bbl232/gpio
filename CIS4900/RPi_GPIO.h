@@ -169,17 +169,65 @@ int RPi_LED_toggle(LED * l);
 int RPi_LED_close(LED * l);
 
 
+/* TWS * RPi_TWS_open(int pin1, int pin2);
 
+	This function creates a three way switch 
+
+	Parameters: int pin1 - the first input pin (also connected to ground via a resistor),
+				int pin2 - the second input pin (also connected to ground via a resistor)
+	Returns: a three-way-switch on success, NULL on failure
+*/
 TWS * RPi_TWS_open(int pin1, int pin2);
 
+
+/* int RPi_TWS_readPosition(TWS * s, int * readto);
+
+	This function reads the position of a 3-way-switch
+
+	Parameters: TWS * s - the switch to get the position for, 
+				int * readto - the int to read the position into
+	Returns: 0 on success
+*/
 int RPi_TWS_readPosition(TWS * s, int * readto);
 
+
+/* int RPi_TWS_close(TWS * s);
+
+	This function will close a three way switch connection
+
+	Parameters: TWS * s - the switch to close
+	Returns: 0 on success
+*/
 int RPi_TWS_close(TWS * s);
 
+
+/* PHR * RPi_PHR_open(int pin);
+
+	This function creates a photoresistor
+
+	Parameters: int pin - the pin number that the photo resistor is hooked up to
+	Returns: PHR *, the photoresistor
+*/
 PHR * RPi_PHR_open(int pin);
 
+
+/* int RPi_PHR_read(PHR * r, bool * readto);
+
+	This function reads the photoresistor. False value means it is dark, true value means it is bright
+
+	Parameters: PHR * r - the resistor to read from, bool * readto - the boolean to put the value into
+	Returns: 0 on success
+*/
 int RPi_PHR_read(PHR * r, bool * readto);
 
+
+/* int RPi_PHR_close(PHR * r);
+
+	This function closes the connection to a photoresistor
+
+	Parameters: PHR * r - the photoresistor you are no longer using
+	Returns: 0 on success
+*/
 int RPi_PHR_close(PHR * r);
 
 
