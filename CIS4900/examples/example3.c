@@ -3,7 +3,7 @@ Date: August 15, 2013
 Purpose: Blink 2 different coloured LEDs based on the position of a three way switch until the switch is at position 2.
 
 To compile this program use this command:
-gcc example1.c -o example1 -lRPi_GPIO
+gcc example3.c -o example3 -lRPi_GPIO
 */
 /*First off, we need access to the library*/
 #include "RPi_GPIO.h"
