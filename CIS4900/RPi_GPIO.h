@@ -170,29 +170,17 @@ int RPi_LED_close(LED * l);
 
 
 
-TWS * RPi_TWS_open(int pin1, int pin2){
+TWS * RPi_TWS_open(int pin1, int pin2);
 
-}
+int RPi_TWS_readPosition(TWS * s, int * readto);
 
-int RPi_TWS_readPosition(TWS * s, int * readto){
+int RPi_TWS_close(TWS * s);
 
-}
+PHR * RPi_PHR_open(int pin);
 
-int RPi_TWS_close(TWS * s){
+int RPi_PHR_read(PHR * r, bool * readto);
 
-}
-
-PHR * RPi_PHR_open(int pin){
-
-}
-
-int RPi_PHR_read(PHR * r, int * readto){
-
-}
-
-int RPi_PHR_close(PHR * r){
-	
-}
+int RPi_PHR_close(PHR * r);
 
 
 /*  +----------------------------------------------------------------+

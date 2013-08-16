@@ -120,7 +120,7 @@ int RPi_pclose(PIN * p){
 } 
 
 int RPi_pread(PIN * p, bool * in){
-	if(p != NULL){
+	if(p != NULL && in != NULL){
 		if(p->dire==IN){
 			if(0==RPi__getValue(p->location, in)){
 				return 0;
@@ -394,8 +394,8 @@ struct LED{
 };
 
 struct TWS{
-	PIN * p;
-	bool lastMode; // Last position of the switch
+	PIN * p1;
+	PIN * p2;
 };
 
 struct PHR{
@@ -478,36 +478,92 @@ int RPi_LED_close(LED * l){
 	return 0;
 }
 
-
-
 TWS * RPi_TWS_open(int pin1, int pin2){
-
+	TWS * newTWS = malloc(sizeof(struct TWS));
+	if (newTWS == NULL){
+		LASTERR=8;
+		return NULL;
+	}
+	newTWS->p1 = RPi_popen(pin1,ACTIVE_HIGH,IN);
+	if(newTWS->p1==NULL){
+		free(newTWS);
+		return NULL;
+	}
+	newTWS->p2 = RPi_popen(pin2,ACTIVE_HIGH,IN);
+	if(newTWS->p2==NULL){
+		free(newTWS);
+		return NULL;
+	}
+	return newTWS;
 }
 
 int RPi_TWS_readPosition(TWS * s, int * readto){
+	if(s==NULL || s->p1==NULL || s->p2==NULL || readto==NULL){
+		LASTERR=4;
+		return 1;
+	}
 
+	bool pin1, pin2;
+	if (0==RPi_pread(s->p1, &pin1) && 0==RPi_pread(s->p2, &pin2)){
+		if(pin1){
+			*readto = 1;
+		}
+		else if(pin2){
+			*readto = 2;
+		}
+		else{
+			*readto = 0;
+		}
+		return 0;
+	}
+	return 1;
 }
 
 int RPi_TWS_close(TWS * s){
-
+	if(s==NULL || s->p1==NULL || s->p2==NULL){
+		LASTERR=4;
+		return 1;
+	}
+	if(0==RPi_pclose(s->p1) && 0==RPi_pclose(s->p2)){
+		free(s);
+		return 0;
+	}
+	return 1;
 }
 
 PHR * RPi_PHR_open(int pin){
-
+	PHR * newPHR = malloc(sizeof(struct PHR));
+	if(newPHR==NULL){
+		LASTERR=9;
+		return NULL;
+	}
+	newPHR->p = RPi_popen(pin,ACTIVE_HIGH,IN);
+	if(newPHR->p==NULL){
+		free(newPHR);
+		return NULL;
+	}
+	return newPHR;
 }
 
-int RPi_PHR_read(PHR * r, int * readto){
-
+int RPi_PHR_read(PHR * r, bool * readto){
+	if(r==NULL || r->p==NULL){
+		LASTERR=4;
+		return 1;
+	}
+	return RPi_pread(r->p,readto);
 }
 
 int RPi_PHR_close(PHR * r){
-	
+	if(r==NULL || r->p==NULL){
+		LASTERR=4;
+		return 1;
+	}
+	if(0==RPi_pclose(r->p)){
+		free(r);
+		return 0;
+	}
+	return 1;
 }
-
-
-
-
-
 
 int RPi_errorno(){
 	return LASTERR;
@@ -529,6 +585,10 @@ char * RPi_errorstr(int err){
 			return "Attempt to read from a write only pin.";
 		case 7:
 			return "Unable to create LED, memory not available.";
+		case 8:
+			return "Unable to create three-way-switch, memory not available.";
+		case 9:
+			return "Unable to create photoresistor, memory not available.";
 		default:
 			return "Unknown Error.";
 		break;
