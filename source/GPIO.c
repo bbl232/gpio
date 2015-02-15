@@ -422,7 +422,7 @@ struct PHR{
 };
 
 /*
-RPi_LED_open - this function opens a connection to the given pin to abstract an LED device
+    RPi_LED_open - this function opens a connection to the given pin to abstract an LED device
 */
 LED * RPi_LED_open(int pin){
     LED * newLED = malloc(sizeof(struct LED)); /*We need room for the LED*/
@@ -445,7 +445,7 @@ LED * RPi_LED_open(int pin){
 }
 
 /*
-RPi_LED_on - this function lights up an LED
+    RPi_LED_on - this function lights up an LED
 */
 int RPi_LED_on(LED * l){
     if(l==NULL || l->p==NULL){
@@ -460,7 +460,7 @@ int RPi_LED_on(LED * l){
 }
 
 /*
-RPi_LED_off - this function turns off an LED
+    RPi_LED_off - this function turns off an LED
 */
 int RPi_LED_off(LED * l){
     if(l==NULL || l->p==NULL){
@@ -475,7 +475,7 @@ int RPi_LED_off(LED * l){
 }
 
 /*
-RPi_LED_toggle - this function toggles the current state of an LED
+    RPi_LED_toggle - this function toggles the current state of an LED
 */
 int RPi_LED_toggle(LED * l){
     if(l==NULL || l->p==NULL){
@@ -497,7 +497,7 @@ int RPi_LED_toggle(LED * l){
 }
 
 /*
-RPi_LED_close - this closes the connection to the LED, cleans up the memory
+    RPi_LED_close - this closes the connection to the LED, cleans up the memory
 */
 int RPi_LED_close(LED * l){
     if(l==NULL || l->p==NULL){
@@ -512,7 +512,48 @@ int RPi_LED_close(LED * l){
 }
 
 /*
-RPi_TWS_open - this function opens a connection to a three way switch
+    RPi_ADC_open - this function mallocs a struct for use with an MCP3002 (eveone ADC)
+*/
+ADC * RPi_ADC_open(){
+    ADC * newADC = malloc(sizeof(struct ADC));
+    if(newADC == NULL){
+        LASTERR=12;
+        return NULL;
+    }
+    return newADC;
+}
+
+/*
+    RPi_ADC_read - this function will read both channels of an MCP3002 (eveone ADC)
+*/
+int RPi_ADC_read(ADC * a){
+    if(a == NULL){
+        LASTERR=4;
+        return 1;
+    }
+    a->cOne = RPi__spi_read(0,0);
+    a->cTwo = RPi__spi_read(1,0);
+    if(a->cOne == -1 || a->cTwo == -1){
+        LASTERR=13;
+        return 1;
+    }
+    return 0;
+}
+
+/*
+    RPi_ADC_close - this function will free the ADC struct
+*/
+int RPi_ADC_close(ADC * a){
+    if(a == NULL){
+        LASTERR = 4;
+        return 1;
+    }
+    free(ADC);
+    return 0;
+}
+
+/*
+    RPi_TWS_open - this function opens a connection to a three way switch
 */
 TWS * RPi_TWS_open(int pin1, int pin2){
     TWS * newTWS = malloc(sizeof(struct TWS)); /*Make room for the three way switch*/
@@ -527,6 +568,7 @@ TWS * RPi_TWS_open(int pin1, int pin2){
     }
     newTWS->p2 = RPi_popen(pin2,ACTIVE_HIGH,IN);/*Create pin2, check it*/
     if(newTWS->p2==NULL){
+        RPi_pclose(newTWS->p1);
         free(newTWS);
         return NULL;
     }
@@ -534,7 +576,7 @@ TWS * RPi_TWS_open(int pin1, int pin2){
 }
 
 /*
-RPi_TWS_readPosition - this function reads the position of a three way switch
+    RPi_TWS_readPosition - this function reads the position of a three way switch
 */
 int RPi_TWS_readPosition(TWS * s, int * readto){
     if(s==NULL || s->p1==NULL || s->p2==NULL || readto==NULL){
@@ -559,7 +601,7 @@ int RPi_TWS_readPosition(TWS * s, int * readto){
 }
 
 /*
-RPi_TWS_close - this function closes the connection to a three way switch
+    RPi_TWS_close - this function closes the connection to a three way switch
 */
 int RPi_TWS_close(TWS * s){
     if(s==NULL || s->p1==NULL || s->p2==NULL){
@@ -574,7 +616,7 @@ int RPi_TWS_close(TWS * s){
 }
 
 /*
-RPi_PHR_open - this function opens a connection to a photoresistor
+    RPi_PHR_open - this function opens a connection to a photoresistor
 */
 PHR * RPi_PHR_open(int pin){
     PHR * newPHR = malloc(sizeof(struct PHR)); /*Make room for the PHR*/
@@ -591,7 +633,7 @@ PHR * RPi_PHR_open(int pin){
 }
 
 /*
-RPi_PHR_read - thi function reads the state of a PHR
+    RPi_PHR_read - thi function reads the state of a PHR
 */
 int RPi_PHR_read(PHR * r, bool * readto){
     if(r==NULL || r->p==NULL){
@@ -602,7 +644,7 @@ int RPi_PHR_read(PHR * r, bool * readto){
 }
 
 /*
-RPi_PHR_close - this function closes the connection to a phr
+    RPi_PHR_close - this function closes the connection to a phr
 */
 int RPi_PHR_close(PHR * r){
     if(r==NULL || r->p==NULL){
@@ -617,14 +659,14 @@ int RPi_PHR_close(PHR * r){
 }
 
 /*
-RPi_errorno - This function returns the exit code of the last function called
+    RPi_errorno - This function returns the exit code of the last function called
 */
 int RPi_errorno(){
     return LASTERR;
 }
 
 /*
-RPi_errorstr - This function returns a string describing an error code
+    RPi_errorstr - This function returns a string describing an error code
 */
 char * RPi_errorstr(int err){
     switch(err){
@@ -650,6 +692,12 @@ char * RPi_errorstr(int err){
             return "Unable to use pin. It appears that it is already in use.";
         case 11:
             return "Unable to close pin. It appears to already be closed.";
+        case 12:
+            return "Unable to open ADC, memory not available."
+        case 13:
+            return "Unable to read ADC, is SPI enabled on this Pi? Are you using sudo?"
+        case 14:
+            return "Unable to close ADC, it appears to already be closed."
         default:
             return "Invalid error code.";
         break;

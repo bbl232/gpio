@@ -136,15 +136,16 @@ int RPi_pdirection(PIN * p, enum RPi_direction dire);
 
 ADC * RPi_ADC_open();
 
-/* ADC * RPi_ADC_read(ADC * adc)
+/* int * RPi_ADC_read(ADC * adc)
 
     This function reads both channels of the ADC (MCP3002) and stores the values in the ADC struct.
 
     Preconditions: The RPi_ADC_open function has been called and adc is not null.
     Postconditions: The values read from the ADC cannels (0-1024) are placed inside the ADC struct.
+    Returns: 1 on error, 0 on sucess
 */
 
-ADC * RPi_ADC_read(ADC * adc);
+int RPi_ADC_read(ADC * adc);
 
 /* ADC * RPi_ADC_close(ADC * adc)
 
@@ -152,9 +153,10 @@ ADC * RPi_ADC_read(ADC * adc);
 
     Preconditions: The RPi_ADC_open function has been called and adc is not null.
     Postconditions: The memory associated with the adc struct is freed and can no longer be used.
+    Returns: 1 on error, 0 on sucess
 */
 
-ADC * RPi_ADC_close(ADC * adc);
+int RPi_ADC_close(ADC * adc);
 
 /* LED * RPi_LED_open(int pin);
 
